@@ -6,10 +6,12 @@ import Spinner from "@/components/Spinner";
 import { useSnackbar } from "@/components/Snackbar";
 import { examService, Exam } from "@/services/exam";
 import { questionService, Question, CheckAnswerResponse } from "@/services/question";
+import { examResultService, QuestionResult } from "@/services/exam-result";
+import { getAuthToken } from "@/lib/api";
 
 // State for user answers
 type UserAnswers = Record<number, number>; // questionId -> answerId
-type AnswerResults = Record<number, CheckAnswerResponse>; // questionId -> check result
+type AnswerResults = Record<number, QuestionResult>; // questionId -> result from submission
 
 function ExamContent() {
     const router = useRouter();
@@ -73,24 +75,59 @@ function ExamContent() {
 
         setIsSubmitting(true);
         try {
-            // Check all answers using the new API
-            const results: AnswerResults = {};
-            for (const question of questions) {
-                const answerId = userAnswers[question.id];
-                if (answerId) {
-                    const result = await questionService.checkAnswer(question.id, answerId);
-                    results[question.id] = result;
-                }
-            }
-            setAnswerResults(results);
-            setIsSubmitted(true);
+            const token = getAuthToken();
 
-            // Update questions with explanations from results
-            const updatedQuestions = questions.map(q => ({
-                ...q,
-                explanation: results[q.id]?.explanation || q.explanation,
-            }));
-            setQuestions(updatedQuestions);
+            if (token && examId) {
+                // User is authenticated - use examResultService to save to database
+                const answers = Object.entries(userAnswers).map(([qId, aId]) => ({
+                    questionId: parseInt(qId),
+                    answerId: aId,
+                }));
+
+                const submissionResult = await examResultService.submitExam({
+                    examId: parseInt(examId),
+                    answers,
+                });
+
+                // Convert submission details to AnswerResults format
+                const results: AnswerResults = {};
+                submissionResult.details.forEach((detail) => {
+                    results[detail.questionId] = detail;
+                });
+                setAnswerResults(results);
+
+                openSnackbar({
+                    text: `Điểm: ${submissionResult.score}% (${submissionResult.correctCount}/${submissionResult.totalQuestions})`,
+                    type: submissionResult.score >= 70 ? "success" : "warning",
+                    duration: 5000,
+                });
+            } else {
+                // Guest mode - check answers individually (won't save to database)
+                const results: AnswerResults = {};
+                for (const question of questions) {
+                    const answerId = userAnswers[question.id];
+                    if (answerId) {
+                        const result = await questionService.checkAnswer(question.id, answerId);
+                        // Convert CheckAnswerResponse to QuestionResult format
+                        results[question.id] = {
+                            questionId: question.id,
+                            isCorrect: result.isCorrect,
+                            userAnswerId: answerId,
+                            correctAnswerId: result.correctAnswerId,
+                            explanation: result.explanation,
+                        };
+                    }
+                }
+                setAnswerResults(results);
+
+                openSnackbar({
+                    text: "Kết quả không được lưu. Đăng nhập để theo dõi tiến độ!",
+                    type: "info",
+                    duration: 4000,
+                });
+            }
+
+            setIsSubmitted(true);
 
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : "Không thể nộp bài";
