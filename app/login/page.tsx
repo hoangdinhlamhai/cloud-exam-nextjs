@@ -9,8 +9,8 @@ import { setAuthToken } from "@/lib/api";
 const LoginPage = () => {
     const router = useRouter();
     const { openSnackbar } = useSnackbar();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("lamhai@gmail.com");
+    const [password, setPassword] = useState("12345678");
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
