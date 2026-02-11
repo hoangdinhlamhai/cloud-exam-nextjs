@@ -1,165 +1,496 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { getAuthToken } from "@/lib/api";
 
-// Menu Data
-const menuItems = [
-    {
-        key: "certs",
-        icon: "★",
-        label: "Chứng chỉ",
-        desc: "Lộ trình AWS, Azure...",
-        color: "from-orange-400 to-amber-500",
-        shadow: "shadow-orange-500/20",
-        route: "/certs",
-    },
-    {
-        key: "courses",
-        icon: "🎬",
-        label: "Khoá học",
-        desc: "Luyện tập không giới hạn",
-        color: "from-blue-400 to-indigo-500",
-        shadow: "shadow-blue-500/20",
-        route: "/courses",
-    },
-    {
-        key: "exams",
-        icon: "📝",
-        label: "Đề thi",
-        desc: "Luyện thi thử",
-        color: "from-cyan-400 to-teal-500",
-        shadow: "shadow-cyan-500/20",
-        route: "/exams",
-    },
-    {
-        key: "history",
-        icon: "⏰",
-        label: "Lịch sử",
-        desc: "Kết quả luyện tập",
-        color: "from-purple-400 to-pink-500",
-        shadow: "shadow-purple-500/20",
-        route: "/history",
-    },
-    {
-        key: "notes",
-        icon: "📒",
-        label: "Ghi chú",
-        desc: "Sổ tay kiến thức",
-        color: "from-emerald-400 to-green-500",
-        shadow: "shadow-emerald-500/20",
-        route: "/notes",
-    },
+/* ───────── DATA ───────── */
+
+const navLinks = [
+  { key: "courses", label: "Khoá học", route: "/courses" },
+  { key: "exams", label: "Đề thi", route: "/exams" },
+  { key: "history", label: "Lịch sử", route: "/history" },
+  { key: "notes", label: "Ghi chú", route: "/notes" },
 ] as const;
 
-// Fake User Data
-const user = {
-    name: "Minh Nguyen",
-    level: "Pro Member",
+const stats = [
+  { value: "10K+", label: "Câu hỏi", icon: "📝" },
+  { value: "95%", label: "Tỷ lệ đạt", icon: "✅" },
+  { value: "120+", label: "Bộ đề", icon: "📋" },
+  { value: "3", label: "Nền tảng cloud", icon: "☁️" },
+] as const;
+
+const services = [
+  {
+    icon: "🎓",
+    title: "Khoá học đầy đủ",
+    desc: "Bao quát AWS, Azure & GCP với nội dung được cập nhật liên tục theo blueprint mới nhất.",
+    gradient: "from-blue-500 to-indigo-600",
+    route: "/courses",
+  },
+  {
+    icon: "📝",
+    title: "Đề thi thực chiến",
+    desc: "Hàng trăm câu hỏi mô phỏng sát kì thi thật. Giải thích chi tiết cho mỗi đáp án.",
+    gradient: "from-cyan-500 to-teal-500",
+    route: "/exams",
+  },
+  {
+    icon: "📊",
+    title: "Theo dõi tiến độ",
+    desc: "Dashboard phân tích chi tiết điểm mạnh, yếu giúp bạn tối ưu thời gian ôn tập.",
+    gradient: "from-purple-500 to-pink-500",
+    route: "/history",
+  },
+  {
+    icon: "📒",
+    title: "Ghi chú thông minh",
+    desc: "Lưu trữ và tổ chức kiến thức theo từng chủ đề, dễ dàng ôn tập mọi lúc.",
+    gradient: "from-emerald-500 to-green-500",
+    route: "/notes",
+  },
+] as const;
+
+const providers = [
+  {
+    name: "Amazon Web Services",
+    short: "AWS",
+    logo: "🔶",
+    color: "from-orange-500 to-amber-400",
+    certs: ["Solutions Architect", "Developer Associate", "SysOps Admin", "Cloud Practitioner"],
+  },
+  {
+    name: "Microsoft Azure",
+    short: "Azure",
+    logo: "🔷",
+    color: "from-blue-500 to-cyan-400",
+    certs: ["AZ-900 Fundamentals", "AZ-104 Admin", "AZ-204 Developer", "AZ-305 Architect"],
+  },
+  {
+    name: "Google Cloud Platform",
+    short: "GCP",
+    logo: "🔴",
+    color: "from-red-500 to-yellow-400",
+    certs: ["Cloud Digital Leader", "Associate Cloud Engineer", "Professional Architect"],
+  },
+] as const;
+
+const testimonials = [
+  {
+    quote: "Đậu AWS SAA ngay lần thi đầu! Đề thi trên CloudExam sát thực tế hơn bất kỳ nguồn nào tôi từng dùng.",
+    name: "Minh Nguyễn",
+    role: "Cloud Engineer @ FPT Software",
     avatar: "M",
-};
+  },
+  {
+    quote: "Giải thích chi tiết giúp tôi hiểu sâu thay vì chỉ học thuộc. Rất recommend!",
+    name: "Linh Trần",
+    role: "DevOps Lead @ Viettel IDC",
+    avatar: "L",
+  },
+  {
+    quote: "Từ số 0, chỉ sau 3 tuần luyện trên CloudExam tôi đã đạt AZ-900. Quá tuyệt!",
+    name: "Đức Phạm",
+    role: "Junior Developer",
+    avatar: "Đ",
+  },
+] as const;
+
+/* ───────── COMPONENT ───────── */
 
 const HomePage = () => {
-    const router = useRouter();
+  const router = useRouter();
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const heroRef = useRef<HTMLElement>(null);
 
-    return (
-        <div className="bg-slate-900 flex flex-col min-h-screen relative overflow-hidden">
-            {/* Background Decorations */}
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute top-40 -left-20 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+  // Check auth
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) router.replace("/login");
+  }, [router]);
 
-            {/* Header Section */}
-            <header className="sticky top-0 z-50 px-4 py-2 bg-slate-900/80 backdrop-blur-md border-b border-white/5 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 p-0.5 shadow-lg shadow-cyan-500/20">
-                        <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center p-0.5">
-                            <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">{user.avatar}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <p className="text-slate-400 text-xs font-medium">Welcome back,</p>
-                        <h2 className="text-white text-base font-bold">{user.name}</h2>
-                    </div>
-                </div>
-                <button
-                    className="w-9 h-9 rounded-xl bg-slate-800/50 border border-white/10 flex items-center justify-center cursor-pointer hover:bg-slate-800 transition-colors relative"
-                    onClick={() => console.log("Open Notifications")}
-                >
-                    <span className="text-cyan-400">🔔</span>
-                    <div className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-slate-900"></div>
-                </button>
-            </header>
+  // Shrink header on scroll
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 32);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-            {/* Main Content */}
-            <main className="flex-1 px-4 py-6 overflow-y-auto pb-20">
+  return (
+    <div className="min-h-screen bg-slate-950 text-white selection:bg-cyan-500/30">
+      {/* ════════════════ HEADER ════════════════ */}
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled
+            ? "bg-slate-950/80 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/20"
+            : "bg-transparent"
+          }`}
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 lg:px-8">
+          {/* Logo */}
+          <button
+            onClick={() => router.push("/home")}
+            className="flex items-center gap-2.5 group"
+          >
+            <div className="relative">
+              <div className="absolute inset-0 rounded-xl bg-cyan-400 blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
+              <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg">
+                <span className="text-base font-black text-white">C</span>
+              </div>
+            </div>
+            <span className="text-lg font-extrabold tracking-tight">
+              Cloud<span className="text-cyan-400">Exam</span>
+            </span>
+          </button>
 
-                {/* Quick Stats or Promo Banner */}
-                <div className="mb-8 relative overflow-hidden rounded-2xl p-5 bg-gradient-to-r from-violet-600 to-indigo-600 shadow-xl shadow-indigo-500/20">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-                    <p className="text-white/80 text-xs font-medium mb-1 uppercase tracking-wider">Daily Challenge</p>
-                    <h3 className="text-white text-xl font-bold mb-2">AWS Solutions Architect</h3>
-                    <p className="text-white/90 text-sm mb-4 max-w-[80%]">10 new questions added today. Keep your streak alive!</p>
-                    <button
-                        className="bg-white text-indigo-700 px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-slate-100 transition-colors"
-                        onClick={() => router.push('/exams')}
-                    >
-                        Practice Now
-                    </button>
-                </div>
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <button
+                key={link.key}
+                onClick={() => router.push(link.route)}
+                className="relative px-4 py-2 text-[13px] font-medium text-slate-300 rounded-lg hover:text-white hover:bg-white/[0.06] transition-colors"
+              >
+                {link.label}
+              </button>
+            ))}
+          </nav>
 
-                {/* Menu Grid */}
-                <h2 className="text-white text-lg font-bold mb-4 px-2">Explore</h2>
-                <div className="grid grid-cols-2 gap-3">
-                    {menuItems.map((item, idx) => (
-                        <div
-                            key={idx}
-                            className={`bg-slate-800/40 border border-white/5 p-4 rounded-2xl flex flex-col gap-3 group active:scale-95 transition-all duration-200 cursor-pointer ${idx === 0 ? 'col-span-2 flex-row items-center' : ''}`}
-                            onClick={() => router.push(item.route)}
-                        >
-                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} ${item.shadow} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform text-xl`}>
-                                {item.icon}
-                            </div>
-                            <div>
-                                <h3 className="text-white font-bold text-base">{item.label}</h3>
-                                <p className="text-slate-400 text-xs">{item.desc}</p>
-                            </div>
-                            {idx === 0 && (
-                                <div className="ml-auto w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                                    <span className="text-white text-sm">›</span>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
+          {/* Right actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => router.push("/exams")}
+              className="hidden sm:flex items-center gap-1.5 rounded-lg bg-cyan-500/15 border border-cyan-500/25 px-3.5 py-2 text-xs font-semibold text-cyan-300 hover:bg-cyan-500/25 transition-colors"
+            >
+              <span className="text-sm">▶</span>
+              Luyện đề
+            </button>
 
-                {/* Recent Activity Section */}
-                <div className="mt-8">
-                    <div className="flex justify-between items-center mb-4 px-2">
-                        <h2 className="text-white text-lg font-bold">Recent Activity</h2>
-                        <button className="text-cyan-400 text-sm font-medium hover:text-cyan-300 transition-colors">See All</button>
-                    </div>
+            {/* Avatar */}
+            <button
+              onClick={() => router.push("/history")}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-bold ring-2 ring-cyan-500/20 hover:ring-cyan-500/40 transition-all"
+            >
+              U
+            </button>
 
-                    <div className="space-y-3">
-                        {[1, 2].map((_, i) => (
-                            <div key={i} className="flex items-center gap-3 bg-slate-800/30 p-3 rounded-xl border border-white/5">
-                                <div className="w-2 h-10 rounded-full bg-cyan-500/20"></div>
-                                <div className="flex-1">
-                                    <h4 className="text-white font-medium text-sm">AZ-900 Fundamentals</h4>
-                                    <p className="text-slate-500 text-xs">Score: 85% • 2 hours ago</p>
-                                </div>
-                                <div className="px-2 py-1 rounded bg-green-500/20 text-green-400 text-xs font-bold">
-                                    PASS
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-            </main>
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="flex md:hidden h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-300 hover:bg-white/[0.06]"
+            >
+              {mobileMenuOpen ? "✕" : "☰"}
+            </button>
+          </div>
         </div>
-    );
+
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-white/[0.06] bg-slate-950/95 backdrop-blur-xl px-5 pb-4 pt-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            {navLinks.map((link) => (
+              <button
+                key={link.key}
+                onClick={() => {
+                  router.push(link.route);
+                  setMobileMenuOpen(false);
+                }}
+                className="block w-full text-left px-3 py-2.5 text-sm font-medium text-slate-300 rounded-lg hover:text-white hover:bg-white/[0.06] transition-colors"
+              >
+                {link.label}
+              </button>
+            ))}
+            <button
+              onClick={() => {
+                router.push("/exams");
+                setMobileMenuOpen(false);
+              }}
+              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2.5 text-sm font-bold text-white"
+            >
+              <span>▶</span> Luyện đề ngay
+            </button>
+          </div>
+        )}
+      </header>
+
+      {/* ════════════════ HERO ════════════════ */}
+      <section ref={heroRef} className="relative overflow-hidden pt-28 pb-20 lg:pt-36 lg:pb-28">
+        {/* Animated bg blobs */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-[600px] w-[900px] rounded-full bg-gradient-to-b from-cyan-600/20 via-blue-600/10 to-transparent blur-3xl" />
+          <div className="absolute top-32 right-0 h-64 w-64 rounded-full bg-purple-500/15 blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 left-10 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl" />
+          {/* Grid overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:64px_64px]" />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="max-w-3xl">
+            {/* Badge */}
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-500/25 bg-cyan-500/10 px-4 py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-xs font-medium text-cyan-300">Nền tảng luyện thi Cloud #1 Việt Nam</span>
+            </div>
+
+            <h1 className="text-4xl font-black leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+              Chinh phục chứng chỉ{" "}
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Cloud
+              </span>{" "}
+              cùng CloudExam
+            </h1>
+
+            <p className="mt-5 max-w-xl text-base text-slate-400 leading-relaxed sm:text-lg">
+              Luyện tập với hàng nghìn câu hỏi sát kì thi AWS, Azure & GCP. Theo dõi tiến độ, nhận phân tích
+              chi tiết và đạt chứng chỉ ngay lần thi đầu.
+            </p>
+
+            {/* CTA row */}
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button
+                onClick={() => router.push("/exams")}
+                className="group relative rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-cyan-600/25 transition-all hover:shadow-xl hover:shadow-cyan-600/30 hover:-translate-y-0.5"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  <span>▶</span> Bắt đầu luyện đề
+                </span>
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 transition-opacity group-hover:opacity-100" />
+              </button>
+              <button
+                onClick={() => router.push("/courses")}
+                className="rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-slate-200 transition-all hover:bg-white/[0.08] hover:border-white/20"
+              >
+                Khám phá khoá học
+              </button>
+            </div>
+
+            {/* Social proof */}
+            <div className="mt-10 flex items-center gap-4">
+              <div className="flex -space-x-2">
+                {["bg-cyan-500", "bg-blue-500", "bg-purple-500", "bg-pink-500"].map((c, i) => (
+                  <div
+                    key={i}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full ${c} text-xs font-bold ring-2 ring-slate-950`}
+                  >
+                    {["M", "L", "Đ", "+"][i]}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">50,000+ học viên</p>
+                <p className="text-xs text-slate-500">đã tin tưởng sử dụng CloudExam</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════ STATS BAR ════════════════ */}
+      <section className="relative border-y border-white/[0.06] bg-slate-900/50">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px sm:grid-cols-4 lg:px-8">
+          {stats.map((s) => (
+            <div key={s.label} className="flex flex-col items-center gap-1 py-7 px-4 bg-slate-950/60">
+              <span className="text-2xl">{s.icon}</span>
+              <span className="text-xl font-black text-cyan-400">{s.value}</span>
+              <span className="text-xs text-slate-500 font-medium">{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ════════════════ SERVICES / FEATURES ════════════════ */}
+      <section className="py-20 lg:py-28">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          {/* Section heading */}
+          <div className="mb-14 max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 mb-3">Tính năng</p>
+            <h2 className="text-3xl font-extrabold leading-tight sm:text-4xl">
+              Mọi thứ bạn cần để <span className="text-cyan-400">đậu chứng chỉ</span>
+            </h2>
+            <p className="mt-4 text-slate-400 leading-relaxed">
+              Hệ thống luyện thi toàn diện — từ câu hỏi thực chiến cho đến phân tích chi tiết và ghi chú cá nhân.
+            </p>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {services.map((s) => (
+              <div
+                key={s.title}
+                onClick={() => router.push(s.route)}
+                className="group relative cursor-pointer overflow-hidden rounded-2xl border border-white/[0.06] bg-slate-900/60 p-6 transition-all duration-300 hover:border-white/[0.12] hover:bg-slate-900/80 hover:-translate-y-1"
+              >
+                {/* Hover glow */}
+                <div className={`absolute -right-6 -top-6 h-28 w-28 rounded-full bg-gradient-to-br ${s.gradient} opacity-0 blur-3xl transition-opacity group-hover:opacity-20`} />
+
+                <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${s.gradient} text-2xl shadow-lg`}>
+                  {s.icon}
+                </div>
+                <h3 className="mb-2 text-base font-bold text-white">{s.title}</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">{s.desc}</p>
+
+                <div className="mt-5 flex items-center gap-1 text-xs font-semibold text-cyan-400 opacity-0 translate-x-0 transition-all group-hover:opacity-100">
+                  Khám phá <span className="transition-transform group-hover:translate-x-1">→</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════ CLOUD PROVIDERS ════════════════ */}
+      <section className="py-20 lg:py-28 border-t border-white/[0.06] bg-gradient-to-b from-slate-950 to-slate-900/50">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="mb-14 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 mb-3">Nền tảng</p>
+            <h2 className="text-3xl font-extrabold sm:text-4xl">
+              Bao quát <span className="text-cyan-400">3 nhà cung cấp Cloud</span> lớn nhất
+            </h2>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {providers.map((p) => (
+              <div
+                key={p.short}
+                className="group rounded-2xl border border-white/[0.06] bg-slate-900/50 overflow-hidden transition-all hover:border-white/[0.12] hover:-translate-y-1"
+              >
+                {/* Header stripe */}
+                <div className={`bg-gradient-to-r ${p.color} px-6 py-5 flex items-center gap-3`}>
+                  <span className="text-3xl">{p.logo}</span>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">{p.short}</h3>
+                    <p className="text-xs text-white/75">{p.name}</p>
+                  </div>
+                </div>
+                {/* Certs list */}
+                <ul className="divide-y divide-white/[0.04] p-2">
+                  {p.certs.map((c) => (
+                    <li
+                      key={c}
+                      className="flex items-center justify-between rounded-lg px-4 py-3 text-sm text-slate-300 hover:bg-white/[0.04] transition-colors cursor-pointer"
+                      onClick={() => router.push("/courses")}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-cyan-500 text-xs">✦</span>
+                        {c}
+                      </span>
+                      <span className="text-slate-600 group-hover:text-slate-400 transition-colors">›</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════ TESTIMONIALS ════════════════ */}
+      <section className="py-20 lg:py-28 border-t border-white/[0.06]">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="mb-14 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 mb-3">Đánh giá</p>
+            <h2 className="text-3xl font-extrabold sm:text-4xl">
+              Được tin tưởng bởi <span className="text-cyan-400">hàng nghìn chuyên gia</span>
+            </h2>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {testimonials.map((t) => (
+              <div
+                key={t.name}
+                className="rounded-2xl border border-white/[0.06] bg-slate-900/50 p-6 flex flex-col"
+              >
+                {/* Stars */}
+                <div className="mb-4 flex gap-0.5 text-amber-400 text-sm">
+                  {"★★★★★"}
+                </div>
+                <p className="flex-1 text-sm text-slate-300 leading-relaxed italic">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+                <div className="mt-5 flex items-center gap-3 pt-4 border-t border-white/[0.06]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-bold">
+                    {t.avatar}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{t.name}</p>
+                    <p className="text-xs text-slate-500">{t.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════ CTA BANNER ════════════════ */}
+      <section className="py-20 lg:py-28 border-t border-white/[0.06]">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600/20 via-blue-600/20 to-purple-600/20 border border-cyan-500/20 p-10 text-center lg:p-16">
+            {/* Glow */}
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-60 w-60 rounded-full bg-cyan-500/25 blur-[100px]" />
+            </div>
+
+            <div className="relative z-10">
+              <h2 className="text-3xl font-extrabold sm:text-4xl">
+                Sẵn sàng chinh phục Cloud?
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg text-slate-300 leading-relaxed">
+                Bắt đầu luyện tập ngay hôm nay với hơn 10,000 câu hỏi AWS, Azure & GCP.
+                Hoàn toàn miễn phí.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <button
+                  onClick={() => router.push("/exams")}
+                  className="rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-slate-900 shadow-xl hover:bg-slate-100 transition-colors"
+                >
+                  Bắt đầu ngay — Miễn phí
+                </button>
+                <button
+                  onClick={() => router.push("/courses")}
+                  className="rounded-xl border border-white/15 bg-white/[0.06] px-7 py-3.5 text-sm font-semibold text-white hover:bg-white/[0.1] transition-colors"
+                >
+                  Xem lộ trình
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════ FOOTER ════════════════ */}
+      <footer className="border-t border-white/[0.06] bg-slate-950 py-12">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600">
+                <span className="text-xs font-black text-white">C</span>
+              </div>
+              <span className="text-sm font-bold">
+                Cloud<span className="text-cyan-400">Exam</span>
+              </span>
+            </div>
+
+            {/* Links */}
+            <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+              {navLinks.map((l) => (
+                <button
+                  key={l.key}
+                  onClick={() => router.push(l.route)}
+                  className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  {l.label}
+                </button>
+              ))}
+            </nav>
+
+            <p className="text-xs text-slate-600">
+              © {new Date().getFullYear()} CloudExam. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
 };
 
 export default HomePage;

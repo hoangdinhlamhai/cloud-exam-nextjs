@@ -1,181 +1,324 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/Spinner";
-import { courseService, Course } from "@/services/course";
+import { courseService, Course, CourseListResponse } from "@/services/course";
 
-// Provider color mapping for visual distinction
-const providerColors: Record<string, { bg: string; text: string; border: string }> = {
-    AWS: { bg: "from-orange-500 to-amber-500", text: "text-orange-400", border: "border-orange-500/30" },
-    Azure: { bg: "from-blue-500 to-cyan-500", text: "text-blue-400", border: "border-blue-500/30" },
-    GCP: { bg: "from-red-500 to-yellow-500", text: "text-red-400", border: "border-red-500/30" },
-    default: { bg: "from-slate-500 to-slate-600", text: "text-slate-400", border: "border-slate-500/30" },
+/* ──────────── helpers / config ──────────── */
+
+const levelMeta: Record<string, { label: string; dot: string; badge: string }> = {
+    Foundational: { label: "Foundational", dot: "bg-green-400", badge: "border-green-500/30 bg-green-500/10 text-green-400" },
+    Associate: { label: "Associate", dot: "bg-blue-400", badge: "border-blue-500/30 bg-blue-500/10 text-blue-400" },
+    Professional: { label: "Professional", dot: "bg-purple-400", badge: "border-purple-500/30 bg-purple-500/10 text-purple-400" },
+    Specialty: { label: "Specialty", dot: "bg-pink-400", badge: "border-pink-500/30 bg-pink-500/10 text-pink-400" },
 };
 
-// Level badge colors
-const levelColors: Record<string, string> = {
-    Foundational: "bg-green-500/20 text-green-400",
-    Associate: "bg-blue-500/20 text-blue-400",
-    Professional: "bg-purple-500/20 text-purple-400",
-    Specialty: "bg-pink-500/20 text-pink-400",
+const providerMeta: Record<string, { icon: string; gradient: string }> = {
+    AWS: { icon: "🔶", gradient: "from-orange-500 to-amber-400" },
+    Azure: { icon: "🔷", gradient: "from-blue-500 to-cyan-400" },
+    GCP: { icon: "🔴", gradient: "from-red-500 to-yellow-400" },
 };
 
-// Provider filter tabs
-const providers = [
-    { id: 0, name: "Tất cả" },
-    { id: 1, name: "AWS" },
-    { id: 2, name: "Azure" },
-    { id: 3, name: "GCP" },
-];
+const allLevels = ["All", "Foundational", "Associate", "Professional", "Specialty"] as const;
+
+/* ──────────── component ──────────── */
 
 const CoursesPage = () => {
     const router = useRouter();
+
+    /* state */
     const [courses, setCourses] = useState<Course[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedProvider, setSelectedProvider] = useState(0);
     const [error, setError] = useState<string | null>(null);
+    const [search, setSearch] = useState("");
+    const [activeLevel, setActiveLevel] = useState<string>("All");
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [total, setTotal] = useState(0);
 
-    const fetchCourses = async (providerId?: number) => {
+    /* fetch */
+    const fetchCourses = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         try {
-            if (providerId && providerId > 0) {
-                const data = await courseService.getByProvider(providerId);
-                setCourses(data);
-            } else {
-                const response = await courseService.getAll(1, 20);
-                setCourses(response.data);
-            }
+            const level = activeLevel === "All" ? undefined : activeLevel;
+            const res: CourseListResponse = await courseService.getAll(page, 12, undefined, level, search || undefined);
+            setCourses(res.data);
+            setTotalPages(res.totalPages);
+            setTotal(res.total);
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : "Không thể tải khoá học";
-            setError(message);
-            console.error("Fetch courses error:", err);
+            setError(err instanceof Error ? err.message : "Không thể tải danh sách khoá học");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [page, activeLevel, search]);
 
     useEffect(() => {
-        fetchCourses(selectedProvider > 0 ? selectedProvider : undefined);
-    }, [selectedProvider]);
+        fetchCourses();
+    }, [fetchCourses]);
 
-    const getProviderStyle = (providerName: string) => {
-        return providerColors[providerName] || providerColors.default;
-    };
+    /* reset to page 1 when filters change */
+    useEffect(() => {
+        setPage(1);
+    }, [activeLevel, search]);
 
+    /* ──── render ──── */
     return (
-        <div className="bg-slate-900 flex flex-col min-h-screen relative overflow-hidden">
-            {/* Background Decorations */}
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-20 -left-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-            {/* Header */}
-            <header className="sticky top-0 z-50 px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
-                <div className="flex items-center gap-3">
-                    <button
-                        className="w-9 h-9 rounded-xl bg-slate-800/50 border border-white/10 flex items-center justify-center cursor-pointer hover:bg-slate-800 transition-colors"
-                        onClick={() => router.back()}
-                    >
-                        <span className="text-white">←</span>
+        <div className="min-h-screen bg-slate-950 text-white selection:bg-cyan-500/30">
+            {/* ═══════ HEADER ═══════ */}
+            <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/20">
+                <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 lg:px-8">
+                    {/* Logo */}
+                    <button onClick={() => router.push("/home")} className="flex items-center gap-2.5 group">
+                        <div className="relative">
+                            <div className="absolute inset-0 rounded-xl bg-cyan-400 blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
+                            <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg">
+                                <span className="text-base font-black text-white">C</span>
+                            </div>
+                        </div>
+                        <span className="text-lg font-extrabold tracking-tight">
+                            Cloud<span className="text-cyan-400">Exam</span>
+                        </span>
                     </button>
-                    <h1 className="text-white text-lg font-bold">Khoá học</h1>
+
+                    {/* Nav */}
+                    <nav className="hidden md:flex items-center gap-1">
+                        {[
+                            { label: "Trang chủ", route: "/home" },
+                            { label: "Khoá học", route: "/courses" },
+                            { label: "Đề thi", route: "/exams" },
+                            { label: "Lịch sử", route: "/history" },
+                        ].map((l) => (
+                            <button
+                                key={l.route}
+                                onClick={() => router.push(l.route)}
+                                className={`px-4 py-2 text-[13px] font-medium rounded-lg transition-colors ${l.route === "/courses"
+                                        ? "text-cyan-300 bg-cyan-500/10"
+                                        : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
+                                    }`}
+                            >
+                                {l.label}
+                            </button>
+                        ))}
+                    </nav>
+
+                    <button
+                        onClick={() => router.push("/home")}
+                        className="flex md:hidden h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-300 hover:bg-white/[0.06]"
+                    >
+                        ←
+                    </button>
                 </div>
             </header>
 
-            {/* Provider Filter Tabs */}
-            <div className="px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar">
-                {providers.map((provider) => (
-                    <button
-                        key={provider.id}
-                        onClick={() => setSelectedProvider(provider.id)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedProvider === provider.id
-                            ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/20"
-                            : "bg-slate-800/50 text-slate-400 border border-white/10 hover:bg-slate-800"
-                            }`}
-                    >
-                        {provider.name}
-                    </button>
-                ))}
-            </div>
+            {/* ═══════ HERO / PAGE TITLE ═══════ */}
+            <section className="relative overflow-hidden border-b border-white/[0.06] bg-gradient-to-b from-slate-900/50 to-slate-950">
+                <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute -top-20 left-1/2 -translate-x-1/2 h-[400px] w-[700px] rounded-full bg-gradient-to-b from-cyan-600/15 to-transparent blur-3xl" />
+                </div>
 
-            {/* Content */}
-            <main className="flex-1 px-4 py-4 overflow-y-auto pb-20">
-                {isLoading ? (
-                    <div className="flex flex-col items-center justify-center h-64 gap-3">
-                        <Spinner visible />
-                        <p className="text-slate-400 text-sm">Đang tải...</p>
+                <div className="relative z-10 mx-auto max-w-7xl px-5 lg:px-8 pt-14 pb-10">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 mb-3">
+                        Khám phá
+                    </p>
+                    <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">
+                        Khoá học <span className="text-cyan-400">Cloud Computing</span>
+                    </h1>
+                    <p className="mt-4 max-w-2xl text-base text-slate-400 leading-relaxed sm:text-lg">
+                        Lựa chọn từ các khoá học AWS, Azure & GCP — từ nền tảng đến chuyên sâu.
+                        Mỗi khoá bao gồm đề thi thực chiến và giải thích chi tiết.
+                    </p>
+                </div>
+            </section>
+
+            {/* ═══════ FILTERS BAR ═══════ */}
+            <section className="sticky top-[57px] z-40 bg-slate-950/90 backdrop-blur-xl border-b border-white/[0.06]">
+                <div className="mx-auto max-w-7xl px-5 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                    {/* Search */}
+                    <div className="relative flex-1 max-w-md">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
+                        <input
+                            type="text"
+                            placeholder="Tìm khoá học…"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/30 transition-colors"
+                        />
                     </div>
-                ) : error ? (
-                    <div className="flex flex-col items-center justify-center h-64 gap-3">
-                        <span className="text-red-400 text-4xl">⚠</span>
-                        <p className="text-red-400 text-sm">{error}</p>
+
+                    {/* Level pills */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                        {allLevels.map((lvl) => (
+                            <button
+                                key={lvl}
+                                onClick={() => setActiveLevel(lvl)}
+                                className={`whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold transition-colors ${activeLevel === lvl
+                                        ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                                        : "text-slate-400 border border-transparent hover:text-slate-200 hover:bg-white/[0.06]"
+                                    }`}
+                            >
+                                {lvl === "All" ? "Tất cả" : lvl}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ═══════ CONTENT ═══════ */}
+            <main className="mx-auto max-w-7xl px-5 lg:px-8 pt-8 pb-20">
+                {/* Result count */}
+                {!isLoading && !error && (
+                    <p className="mb-6 text-sm text-slate-500">
+                        Hiển thị <span className="text-slate-300 font-semibold">{courses.length}</span> / {total} khoá học
+                        {activeLevel !== "All" && (
+                            <span> · Cấp độ: <span className="text-cyan-400">{activeLevel}</span></span>
+                        )}
+                    </p>
+                )}
+
+                {/* Loading */}
+                {isLoading && (
+                    <div className="flex flex-col items-center justify-center py-32 gap-4">
+                        <Spinner visible />
+                        <p className="text-slate-500 text-sm">Đang tải khoá học…</p>
+                    </div>
+                )}
+
+                {/* Error */}
+                {error && (
+                    <div className="flex flex-col items-center justify-center py-32 gap-4">
+                        <span className="text-4xl">⚠️</span>
+                        <p className="text-red-400 text-sm font-medium">{error}</p>
                         <button
-                            onClick={() => fetchCourses(selectedProvider > 0 ? selectedProvider : undefined)}
-                            className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm hover:bg-slate-700 transition-colors"
+                            onClick={fetchCourses}
+                            className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-white hover:bg-slate-700 transition-colors"
                         >
                             Thử lại
                         </button>
                     </div>
-                ) : courses.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-64 gap-3">
-                        <span className="text-slate-500 text-4xl">📝</span>
-                        <p className="text-slate-400 text-sm">Không có khoá học nào</p>
-                    </div>
-                ) : (
-                    <div className="space-y-3">
-                        {courses.map((course) => {
-                            const providerStyle = getProviderStyle(course.provider.name);
-                            return (
-                                <div
-                                    key={course.id}
-                                    className={`bg-slate-800/40 border ${providerStyle.border} rounded-2xl p-4 cursor-pointer active:scale-[0.98] transition-all hover:bg-slate-800/60`}
-                                    onClick={() => router.push(`/exams?courseId=${course.id}`)}
-                                >
-                                    <div className="flex gap-3">
-                                        {/* Thumbnail or Gradient Placeholder */}
-                                        <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${providerStyle.bg} flex-shrink-0 flex items-center justify-center shadow-lg`}>
-                                            {course.thumbnailUrl ? (
-                                                <img
-                                                    src={course.thumbnailUrl}
-                                                    alt={course.title}
-                                                    className="w-full h-full object-cover rounded-xl"
-                                                />
-                                            ) : (
-                                                <span className="text-white text-2xl">🎬</span>
-                                            )}
-                                        </div>
+                )}
 
-                                        {/* Course Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-white font-bold text-sm line-clamp-2 mb-1">
+                {/* Empty */}
+                {!isLoading && !error && courses.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-32 gap-4">
+                        <span className="text-5xl">📚</span>
+                        <p className="text-slate-400 text-base font-medium">Không tìm thấy khoá học nào</p>
+                        <button
+                            onClick={() => { setSearch(""); setActiveLevel("All"); }}
+                            className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-300 hover:bg-white/[0.08] transition-colors"
+                        >
+                            Xoá bộ lọc
+                        </button>
+                    </div>
+                )}
+
+                {/* Course grid */}
+                {!isLoading && !error && courses.length > 0 && (
+                    <>
+                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            {courses.map((course) => {
+                                const prov = providerMeta[course.provider?.name] || { icon: "☁️", gradient: "from-slate-500 to-slate-400" };
+                                const lvl = levelMeta[course.level] || levelMeta.Foundational;
+                                return (
+                                    <article
+                                        key={course.id}
+                                        onClick={() => router.push(`/exams?courseId=${course.id}`)}
+                                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-white/[0.06] bg-slate-900/60 transition-all duration-300 hover:border-white/[0.12] hover:bg-slate-900/80 hover:-translate-y-1"
+                                    >
+                                        {/* Top accent stripe */}
+                                        <div className={`h-1.5 bg-gradient-to-r ${prov.gradient}`} />
+
+                                        {/* Body */}
+                                        <div className="p-6">
+                                            {/* Provider + Level row */}
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xl">{prov.icon}</span>
+                                                    <span className="text-xs font-semibold text-slate-400">{course.provider?.name || "Cloud"}</span>
+                                                </div>
+                                                <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${lvl.badge}`}>
+                                                    {lvl.label}
+                                                </span>
+                                            </div>
+
+                                            {/* Title */}
+                                            <h3 className="text-lg font-bold leading-snug text-white group-hover:text-cyan-300 transition-colors line-clamp-2 mb-2">
                                                 {course.title}
                                             </h3>
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                <span className={`text-xs font-medium ${providerStyle.text}`}>
-                                                    {course.provider.name}
-                                                </span>
-                                                <span className={`text-xs px-2 py-0.5 rounded-full ${levelColors[course.level] || "bg-slate-500/20 text-slate-400"}`}>
-                                                    {course.level}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-1 mt-2">
-                                                <span className="text-slate-500 text-xs">📝</span>
-                                                <span className="text-slate-500 text-xs">
-                                                    {course._count.exams} đề thi
-                                                </span>
+
+                                            {/* Description */}
+                                            {course.description && (
+                                                <p className="text-sm text-slate-400 leading-relaxed line-clamp-2 mb-5">
+                                                    {course.description}
+                                                </p>
+                                            )}
+
+                                            {/* Footer meta */}
+                                            <div className="flex items-center justify-between pt-4 border-t border-white/[0.06]">
+                                                <div className="flex items-center gap-1.5 text-sm text-slate-400">
+                                                    <span className="text-cyan-500">📋</span>
+                                                    <span className="font-semibold text-slate-300">{course._count?.exams ?? 0}</span>
+                                                    <span>đề thi</span>
+                                                </div>
+                                                <div className="flex items-center gap-1 text-xs font-semibold text-cyan-400 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    Xem đề <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {/* Arrow */}
-                                        <div className="flex items-center">
-                                            <span className="text-slate-600">›</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                                        {/* Hover glow */}
+                                        <div className={`pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br ${prov.gradient} opacity-0 blur-3xl transition-opacity group-hover:opacity-15`} />
+                                    </article>
+                                );
+                            })}
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="mt-10 flex items-center justify-center gap-2">
+                                <button
+                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                    disabled={page === 1}
+                                    className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium text-slate-300 disabled:opacity-40 hover:bg-white/[0.08] transition-colors"
+                                >
+                                    ‹ Trước
+                                </button>
+
+                                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                                    .reduce<(number | "…")[]>((acc, p, idx, arr) => {
+                                        if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("…");
+                                        acc.push(p);
+                                        return acc;
+                                    }, [])
+                                    .map((p, idx) =>
+                                        p === "…" ? (
+                                            <span key={`dot-${idx}`} className="px-2 text-slate-600">…</span>
+                                        ) : (
+                                            <button
+                                                key={p}
+                                                onClick={() => setPage(p)}
+                                                className={`h-9 w-9 rounded-lg text-sm font-semibold transition-colors ${page === p
+                                                        ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                                                        : "text-slate-400 hover:text-white hover:bg-white/[0.06]"
+                                                    }`}
+                                            >
+                                                {p}
+                                            </button>
+                                        )
+                                    )}
+
+                                <button
+                                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                    disabled={page === totalPages}
+                                    className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium text-slate-300 disabled:opacity-40 hover:bg-white/[0.08] transition-colors"
+                                >
+                                    Sau ›
+                                </button>
+                            </div>
+                        )}
+                    </>
                 )}
             </main>
         </div>
