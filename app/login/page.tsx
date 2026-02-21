@@ -145,13 +145,6 @@ const LoginPage = () => {
                             type="button"
                             className="flex items-center justify-center gap-2 bg-slate-700/50 hover:bg-slate-700 border border-white/5 rounded-xl h-11 transition-colors"
                         >
-                            <span className="text-blue-500">💬</span>
-                            <span className="text-white text-sm font-medium">Zalo</span>
-                        </button>
-                        <button
-                            type="button"
-                            className="flex items-center justify-center gap-2 bg-slate-700/50 hover:bg-slate-700 border border-white/5 rounded-xl h-11 transition-colors"
-                        >
                             <span className="text-red-500">G</span>
                             <span className="text-white text-sm font-medium">Google</span>
                         </button>

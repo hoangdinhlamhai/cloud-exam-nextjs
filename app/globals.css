@@ -1,8 +1,30 @@
 @import "tailwindcss";
 
-:root {
+/* ═══ Dark theme (default) ═══ */
+:root,
+[data-theme="dark"] {
   --background: #0f172a;
   --foreground: #f8fafc;
+  --surface: #1e293b;
+  --surface-hover: #334155;
+  --border-clr: rgba(255, 255, 255, 0.06);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --card-bg: rgba(15, 23, 42, 0.6);
+}
+
+/* ═══ Light theme ═══ */
+[data-theme="light"] {
+  --background: #f1f5f9;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --surface-hover: #f1f5f9;
+  --border-clr: rgba(0, 0, 0, 0.1);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --card-bg: rgba(255, 255, 255, 0.8);
 }
 
 @theme inline {
@@ -16,12 +38,98 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ═══ Light mode: global overrides ═══ */
+/* These use [data-theme] which is set by ThemeProvider via setAttribute */
+
+[data-theme="light"] body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Dark backgrounds → light */
+[data-theme="light"] [class*="bg-slate-950"] {
+  background-color: #f1f5f9 !important;
+}
+
+[data-theme="light"] [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+}
+
+[data-theme="light"] [class*="bg-slate-800"] {
+  background-color: #f8fafc !important;
+}
+
+/* Text colors → dark (skip elements inside gradient containers) */
+[data-theme="light"] [class*="text-white"]:not([class*="bg-gradient"] *):not([class*="from-"] *) {
+  color: #0f172a !important;
+}
+
+/* Keep white text ON gradient backgrounds */
+[data-theme="light"] [class*="bg-gradient"] [class*="text-white"],
+[data-theme="light"] [class*="bg-gradient"] [class*="text-white\\/"],
+[data-theme="light"] [class*="from-"] [class*="text-white"],
+[data-theme="light"] [class*="from-"] [class*="text-white\\/"] {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] [class*="text-slate-300"] {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] [class*="text-slate-400"] {
+  color: #334155 !important;
+}
+
+[data-theme="light"] [class*="text-slate-500"] {
+  color: #475569 !important;
+}
+
+[data-theme="light"] [class*="text-slate-600"] {
+  color: #64748b !important;
+}
+
+/* Hover bg on light mode (white/[0.04] is invisible on white bg) */
+[data-theme="light"] [class*="hover\\:bg-white"]:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Borders & dividers → dark */
+[data-theme="light"] [class*="border-white"] {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] [class*="divide-white"]>*+* {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Special elements */
+[data-theme="light"] [class*="bg-gradient-to-b"][class*="from-slate"] {
+  background-image: none !important;
+  background-color: #f1f5f9 !important;
+}
+
+/* Shadows */
+[data-theme="light"] [class*="shadow-black"] {
+  --tw-shadow-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] [class*="shadow-cyan"] {
+  --tw-shadow-color: rgba(6, 182, 212, 0.1) !important;
+}
+
+/* Backdrop blur in light */
+[data-theme="light"] [class*="backdrop-blur"] {
+  background-color: rgba(255, 255, 255, 0.85) !important;
 }
 
 /* Custom scrollbar hiding */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -31,6 +139,7 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -38,9 +147,12 @@ body {
 
 /* Animations */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }

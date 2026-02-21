@@ -1,16 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getAuthToken } from "@/lib/api";
+import { profileService } from "@/services/profile";
+import { useTheme } from "@/components/ThemeProvider";
 
 /* ───────── DATA ───────── */
 
 const navLinks = [
-  { key: "courses", label: "Khoá học", route: "/courses" },
-  { key: "exams", label: "Đề thi", route: "/exams" },
-  { key: "history", label: "Lịch sử", route: "/history" },
-  { key: "notes", label: "Ghi chú", route: "/notes" },
+  { key: "courses", label: "Khoá học", icon: "📚", route: "/courses" },
+  { key: "exams", label: "Đề thi", icon: "📝", route: "/exams" },
+  { key: "history", label: "Lịch sử", icon: "📊", route: "/history" },
+  { key: "notes", label: "Ghi chú", icon: "📒", route: "/notes" },
 ] as const;
 
 const stats = [
@@ -96,19 +98,66 @@ const testimonials = [
   },
 ] as const;
 
+/* ───────── THEME TOGGLE ───────── */
+
+const ThemeToggle = () => {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-lg transition-all duration-300 hover:bg-white/[0.08] hover:border-white/20 hover:scale-110 active:scale-95"
+      title={isDark ? "Chuyển sang Light Mode" : "Chuyển sang Dark Mode"}
+    >
+      <span
+        className={`absolute transition-all duration-300 ${isDark ? "opacity-100 rotate-0 scale-100" : "opacity-0 rotate-90 scale-50"}`}
+      >
+        🌙
+      </span>
+      <span
+        className={`absolute transition-all duration-300 ${!isDark ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`}
+      >
+        ☀️
+      </span>
+    </button>
+  );
+};
+
 /* ───────── COMPONENT ───────── */
+
+interface UserProfile {
+  fullName: string | null;
+  avatarUrl: string | null;
+  email: string;
+}
 
 const HomePage = () => {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const heroRef = useRef<HTMLElement>(null);
 
-  // Check auth
+  // Fetch profile for avatar
+  const fetchProfile = useCallback(async () => {
+    try {
+      const data = await profileService.getProfile();
+      setProfile(data);
+    } catch {
+      // silently fail — avatar will show fallback
+    }
+  }, []);
+
+  // Check auth & fetch profile
   useEffect(() => {
     const token = getAuthToken();
-    if (!token) router.replace("/login");
-  }, [router]);
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    fetchProfile();
+  }, [router, fetchProfile]);
 
   // Shrink header on scroll
   useEffect(() => {
@@ -117,13 +166,21 @@ const HomePage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Avatar helpers
+  const avatarInitials = (profile?.fullName || profile?.email || "U")
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
   return (
     <div className="min-h-screen bg-slate-950 text-white selection:bg-cyan-500/30">
       {/* ════════════════ HEADER ════════════════ */}
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled
-            ? "bg-slate-950/80 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/20"
-            : "bg-transparent"
+          ? "bg-slate-950/80 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/20"
+          : "bg-transparent"
           }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 lg:px-8">
@@ -134,9 +191,6 @@ const HomePage = () => {
           >
             <div className="relative">
               <div className="absolute inset-0 rounded-xl bg-cyan-400 blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
-              <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg">
-                <span className="text-base font-black text-white">C</span>
-              </div>
             </div>
             <span className="text-lg font-extrabold tracking-tight">
               Cloud<span className="text-cyan-400">Exam</span>
@@ -149,29 +203,31 @@ const HomePage = () => {
               <button
                 key={link.key}
                 onClick={() => router.push(link.route)}
-                className="relative px-4 py-2 text-[13px] font-medium text-slate-300 rounded-lg hover:text-white hover:bg-white/[0.06] transition-colors"
+                className="group relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-300 rounded-xl hover:text-white hover:bg-white/[0.06] transition-all duration-200 hover:scale-105"
               >
-                {link.label}
+                <span className="text-lg transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-6">{link.icon}</span>
+                <span>{link.label}</span>
+                {/* Underline slide-in */}
+                <span className="absolute bottom-1 left-4 right-4 h-0.5 rounded-full bg-cyan-400 origin-left scale-x-0 transition-transform duration-200 group-hover:scale-x-100" />
               </button>
             ))}
           </nav>
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => router.push("/exams")}
-              className="hidden sm:flex items-center gap-1.5 rounded-lg bg-cyan-500/15 border border-cyan-500/25 px-3.5 py-2 text-xs font-semibold text-cyan-300 hover:bg-cyan-500/25 transition-colors"
-            >
-              <span className="text-sm">▶</span>
-              Luyện đề
-            </button>
+            {/* Theme toggle */}
+            <ThemeToggle />
 
             {/* Avatar */}
             <button
-              onClick={() => router.push("/history")}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-bold ring-2 ring-cyan-500/20 hover:ring-cyan-500/40 transition-all"
+              onClick={() => router.push("/profile")}
+              className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-bold ring-2 ring-cyan-500/20 hover:ring-4 hover:ring-cyan-500/40 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-cyan-500/25 overflow-hidden"
             >
-              U
+              {profile?.avatarUrl ? (
+                <img src={profile.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+              ) : (
+                <span>{avatarInitials}</span>
+              )}
             </button>
 
             {/* Mobile hamburger */}
@@ -194,8 +250,9 @@ const HomePage = () => {
                   router.push(link.route);
                   setMobileMenuOpen(false);
                 }}
-                className="block w-full text-left px-3 py-2.5 text-sm font-medium text-slate-300 rounded-lg hover:text-white hover:bg-white/[0.06] transition-colors"
+                className="flex w-full items-center gap-3 px-3 py-3 text-sm font-medium text-slate-300 rounded-xl hover:text-white hover:bg-white/[0.06] transition-all duration-200 active:scale-[0.98]"
               >
+                <span className="text-xl">{link.icon}</span>
                 {link.label}
               </button>
             ))}
@@ -247,19 +304,13 @@ const HomePage = () => {
             {/* CTA row */}
             <div className="mt-8 flex flex-wrap gap-3">
               <button
-                onClick={() => router.push("/exams")}
+                onClick={() => router.push("/courses")}
                 className="group relative rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-cyan-600/25 transition-all hover:shadow-xl hover:shadow-cyan-600/30 hover:-translate-y-0.5"
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  <span>▶</span> Bắt đầu luyện đề
+                  <span>▶</span> Khám phá khoá học
                 </span>
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 transition-opacity group-hover:opacity-100" />
-              </button>
-              <button
-                onClick={() => router.push("/courses")}
-                className="rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-slate-200 transition-all hover:bg-white/[0.08] hover:border-white/20"
-              >
-                Khám phá khoá học
               </button>
             </div>
 
@@ -437,20 +488,6 @@ const HomePage = () => {
                 Bắt đầu luyện tập ngay hôm nay với hơn 10,000 câu hỏi AWS, Azure & GCP.
                 Hoàn toàn miễn phí.
               </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <button
-                  onClick={() => router.push("/exams")}
-                  className="rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-slate-900 shadow-xl hover:bg-slate-100 transition-colors"
-                >
-                  Bắt đầu ngay — Miễn phí
-                </button>
-                <button
-                  onClick={() => router.push("/courses")}
-                  className="rounded-xl border border-white/15 bg-white/[0.06] px-7 py-3.5 text-sm font-semibold text-white hover:bg-white/[0.1] transition-colors"
-                >
-                  Xem lộ trình
-                </button>
-              </div>
             </div>
           </div>
         </div>

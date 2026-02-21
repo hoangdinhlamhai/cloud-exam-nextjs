@@ -121,16 +121,6 @@ const LandingPage = () => {
           <div className="absolute top-40 left-0 w-24 h-24 bg-purple-500/30 rounded-full blur-2xl pointer-events-none"></div>
 
           <div className="relative z-10 max-w-4xl mx-auto">
-            {/* Badge */}
-            <div className="flex justify-center mb-4">
-              <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-full px-4 py-1.5 flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                <span className="text-cyan-300 text-xs font-medium">
-                  2024&apos;s #1 Cloud Exam Platform
-                </span>
-              </div>
-            </div>
-
             {/* Main headline */}
             <h1 className="text-center text-white mb-3 text-3xl md:text-5xl font-black leading-tight">
               Master Cloud <br />
@@ -224,7 +214,7 @@ const LandingPage = () => {
             <span className="text-cyan-400 text-sm font-semibold uppercase tracking-wider mb-2 block">
               Certifications
             </span>
-            <h2 className="text-white text-xl font-bold">
+            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
               All major cloud platforms
             </h2>
           </div>
@@ -233,7 +223,8 @@ const LandingPage = () => {
             {certifications.map((cert, idx) => (
               <div
                 key={idx}
-                className="bg-slate-800/50 rounded-2xl border border-white/5 overflow-hidden"
+                className="rounded-2xl overflow-hidden"
+                style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-clr)' }}
               >
                 {/* Header */}
                 <div
@@ -241,10 +232,10 @@ const LandingPage = () => {
                 >
                   <span className="text-2xl">{cert.badge}</span>
                   <div>
-                    <h3 className="text-white font-bold text-lg">
+                    <h3 className="font-bold text-lg" style={{ color: '#ffffff' }}>
                       {cert.provider}
                     </h3>
-                    <p className="text-white/80 text-xs">
+                    <p className="text-xs" style={{ color: 'rgba(255,255,255,0.8)' }}>
                       {cert.certs.length} certifications available
                     </p>
                   </div>
@@ -254,15 +245,18 @@ const LandingPage = () => {
                   {cert.certs.map((c, i) => (
                     <div
                       key={i}
-                      className="flex items-center justify-between bg-slate-700/30 rounded-xl px-4 py-3 cursor-pointer hover:bg-slate-700/50 transition-colors"
+                      className="flex items-center justify-between rounded-xl px-4 py-3 cursor-pointer transition-colors"
+                      style={{ backgroundColor: 'var(--surface-hover)' }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-green-400 text-sm">✓</span>
-                        <span className="text-slate-200 text-sm font-medium">
+                        <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                           {c}
                         </span>
                       </div>
-                      <span className="text-slate-500">›</span>
+                      <span style={{ color: 'var(--text-muted)' }}>›</span>
                     </div>
                   ))}
                 </div>
