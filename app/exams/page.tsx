@@ -181,15 +181,64 @@ function ExamsContent() {
                         </p>
                     </div>
 
-                    {/* Breadcrumb badge for Course Context */}
-                    {course && (
-                        <div className="mt-6 flex items-center gap-2">
-                            <span className="text-slate-500 text-sm">Đang xem đề thi của:</span>
-                            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-sm font-medium text-cyan-300">
-                                {providerMeta[course.provider.name]?.icon || "🎓"} {course.title}
+                    {/* Course info banner with thumbnail */}
+                    {course && (() => {
+                        const courseProv = providerMeta[course.provider?.name] || { icon: "☁️", gradient: "from-slate-500 to-slate-400" };
+                        const courseLvl = levelMeta[course.level] || levelMeta.Associate;
+                        return (
+                            <div className="mt-8 flex flex-col sm:flex-row items-start gap-5 rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-md p-5 relative overflow-hidden">
+                                {/* Background glow */}
+                                <div className={`pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br ${courseProv.gradient} opacity-10 blur-3xl`} />
+
+                                {/* Thumbnail */}
+                                {course.thumbnailUrl ? (
+                                    <div className="relative flex-shrink-0">
+                                        <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${courseProv.gradient} opacity-20 blur-lg`} />
+                                        <img
+                                            src={course.thumbnailUrl}
+                                            alt={course.title}
+                                            className="relative w-24 h-24 sm:w-28 sm:h-28 object-contain rounded-xl border border-white/10 bg-white/[0.06] p-3"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className={`flex-shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-xl border border-white/10 bg-gradient-to-br ${courseProv.gradient} opacity-80`}>
+                                        <span className="text-4xl">{courseProv.icon}</span>
+                                    </div>
+                                )}
+
+                                {/* Course details */}
+                                <div className="relative z-10 flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-lg">{courseProv.icon}</span>
+                                        <span className="text-xs font-semibold text-slate-400">{course.provider?.name || "Cloud"}</span>
+                                        <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${courseLvl.badge}`}>
+                                            {courseLvl.label}
+                                        </span>
+                                    </div>
+                                    <h2 className="text-lg sm:text-xl font-bold text-white leading-snug mb-1.5 line-clamp-2">
+                                        {course.title}
+                                    </h2>
+                                    {course.description && (
+                                        <p className="text-sm text-slate-400 leading-relaxed line-clamp-2 mb-3">
+                                            {course.description}
+                                        </p>
+                                    )}
+                                    <div className="flex items-center gap-3">
+                                        <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
+                                            <span className="text-cyan-500">📋</span>
+                                            <span className="font-semibold text-slate-300">{course._count?.exams ?? total}</span> đề thi
+                                        </span>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); router.push("/courses"); }}
+                                            className="text-xs text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+                                        >
+                                            ← Quay lại khoá học
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
                 </div>
             </section>
 
@@ -307,7 +356,7 @@ function ExamsContent() {
                                 return (
                                     <article
                                         key={exam.id}
-                                        onClick={() => router.push(`/exam?id=${exam.id}`)}
+                                        onClick={() => router.push(`/exam-mode?id=${exam.id}`)}
                                         className="group relative cursor-pointer overflow-hidden rounded-2xl border border-white/[0.06] bg-slate-900/60 transition-all duration-300 hover:border-white/[0.12] hover:bg-slate-900/80 hover:-translate-y-1"
                                     >
                                         {/* Top accent stripe */}

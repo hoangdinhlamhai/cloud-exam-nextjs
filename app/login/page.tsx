@@ -140,10 +140,10 @@ const LoginPage = () => {
                     </div>
 
                     {/* Social Login */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="flex justify-center">
                         <button
                             type="button"
-                            className="flex items-center justify-center gap-2 bg-slate-700/50 hover:bg-slate-700 border border-white/5 rounded-xl h-11 transition-colors"
+                            className="flex items-center justify-center gap-2 bg-slate-700/50 hover:bg-slate-700 border border-white/5 rounded-xl h-11 px-8 w-full max-w-xs transition-colors"
                         >
                             <span className="text-red-500">G</span>
                             <span className="text-white text-sm font-medium">Google</span>

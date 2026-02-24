@@ -144,7 +144,7 @@ const LandingPage = () => {
               </button>
               <button
                 className="flex-1 rounded-xl py-3 text-base font-semibold text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-                onClick={() => router.push('/courses')}
+                onClick={() => router.push('/login')}
               >
                 Explore Exams
               </button>

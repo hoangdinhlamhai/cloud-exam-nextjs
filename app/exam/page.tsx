@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, Suspense } from "react";
+import React, { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Spinner from "@/components/Spinner";
 import { useSnackbar } from "@/components/Snackbar";
@@ -21,6 +21,8 @@ function ExamContent() {
     const { openSnackbar } = useSnackbar();
     const searchParams = useSearchParams();
     const examId = searchParams.get("id");
+    const mode = searchParams.get("mode") as "practice" | "test" | null;
+    const isTestMode = mode === "test";
 
     /* ── state ── */
     const [exam, setExam] = useState<Exam | null>(null);
@@ -40,6 +42,11 @@ function ExamContent() {
     const [questionNotes, setQuestionNotes] = useState<QuestionNotes>({});
     const [openNoteId, setOpenNoteId] = useState<number | null>(null);
     const [isSavingNote, setIsSavingNote] = useState(false);
+
+    // Timer (test mode only)
+    const [timeRemaining, setTimeRemaining] = useState<number>(0); // in seconds
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const hasAutoSubmitted = useRef(false);
 
     /* ── fetch ── */
     const fetchExamData = useCallback(async () => {
@@ -62,6 +69,57 @@ function ExamContent() {
         fetchExamData();
     }, [fetchExamData]);
 
+    // Initialize timer when exam loads (test mode)
+    useEffect(() => {
+        if (isTestMode && exam && !isSubmitted) {
+            setTimeRemaining(exam.durationMinutes * 60);
+        }
+    }, [isTestMode, exam, isSubmitted]);
+
+    // Countdown logic
+    useEffect(() => {
+        if (!isTestMode || isSubmitted || timeRemaining <= 0) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            return;
+        }
+
+        timerRef.current = setInterval(() => {
+            setTimeRemaining((prev) => {
+                if (prev <= 1) {
+                    if (timerRef.current) clearInterval(timerRef.current);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
+    }, [isTestMode, isSubmitted, timeRemaining > 0]);
+
+    // Auto-submit when time runs out
+    useEffect(() => {
+        if (isTestMode && timeRemaining === 0 && !isSubmitted && !hasAutoSubmitted.current && exam && questions.length > 0) {
+            hasAutoSubmitted.current = true;
+            openSnackbar({
+                text: "⏰ Hết giờ! Bài thi đã được tự động nộp.",
+                type: "warning",
+                duration: 5000,
+            });
+            handleSubmit();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [timeRemaining, isTestMode, isSubmitted, exam, questions.length]);
+
+    // Format time helper
+    const formatTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+    const isTimeLow = isTestMode && timeRemaining > 0 && timeRemaining <= 300; // < 5 min
+
     /* ── handlers ── */
     const handleSelectAnswer = (questionId: number, answerId: number) => {
         if (isSubmitted) return;
@@ -70,7 +128,8 @@ function ExamContent() {
 
     const handleSubmit = async () => {
         const answeredCount = Object.keys(userAnswers).length;
-        if (answeredCount < questions.length) {
+        // In practice mode, require all questions answered. In test mode, allow partial.
+        if (!isTestMode && answeredCount < questions.length) {
             openSnackbar({
                 text: `Bạn còn ${questions.length - answeredCount} câu chưa trả lời!`,
                 type: "warning",
@@ -248,6 +307,28 @@ function ExamContent() {
                             {!isSubmitted && <span className="ml-2 text-cyan-400">· {answeredCount} đã trả lời</span>}
                         </p>
                     </div>
+
+                    {/* Timer badge (test mode) */}
+                    {isTestMode && !isSubmitted && (
+                        <div className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-bold transition-all ${isTimeLow
+                            ? "bg-red-500/15 text-red-400 border border-red-500/30 animate-pulse"
+                            : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                            }`}>
+                            <span>{isTimeLow ? "🔥" : "⏱️"}</span>
+                            <span className="font-mono tabular-nums">{formatTime(timeRemaining)}</span>
+                        </div>
+                    )}
+
+                    {/* Mode badge */}
+                    {!isSubmitted && (
+                        <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold border ${isTestMode
+                            ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                            : "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
+                            }`}>
+                            <span>{isTestMode ? "🏆" : "📖"}</span>
+                            <span>{isTestMode ? "Thi thử" : "Luyện tập"}</span>
+                        </div>
+                    )}
 
                     {/* Score badge (after submit) */}
                     {isSubmitted && score && (
