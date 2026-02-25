@@ -350,8 +350,7 @@ function ExamsContent() {
                                         : exam.course?.title.includes("Google") ? "GCP" : "AWS";
 
                                 const prov = providerMeta[providerName] || providerMeta.AWS;
-                                const levelName = exam.course?.level || "Associate";
-                                const lvl = levelMeta[levelName] || levelMeta.Associate;
+
 
                                 return (
                                     <article
@@ -365,14 +364,9 @@ function ExamsContent() {
                                         {/* Body */}
                                         <div className="p-6">
                                             {/* Provider + Level row */}
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-xl">{prov.icon}</span>
-                                                    <span className="text-xs font-semibold text-slate-400">{providerName}</span>
-                                                </div>
-                                                <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${lvl.badge}`}>
-                                                    {lvl.label}
-                                                </span>
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <span className="text-xl">{prov.icon}</span>
+                                                <span className="text-xs font-semibold text-slate-400">{providerName}</span>
                                             </div>
 
                                             {/* Title */}

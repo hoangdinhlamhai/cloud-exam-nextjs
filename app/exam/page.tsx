@@ -24,6 +24,9 @@ function ExamContent() {
     const mode = searchParams.get("mode") as "practice" | "test" | null;
     const isTestMode = mode === "test";
 
+    /* ── localStorage key ── */
+    const storageKey = examId ? `exam_progress_${examId}_${mode || "practice"}` : null;
+
     /* ── state ── */
     const [exam, setExam] = useState<Exam | null>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
@@ -47,6 +50,7 @@ function ExamContent() {
     const [timeRemaining, setTimeRemaining] = useState<number>(0); // in seconds
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const hasAutoSubmitted = useRef(false);
+    const hasLoadedProgress = useRef(false);
 
     /* ── fetch ── */
     const fetchExamData = useCallback(async () => {
@@ -58,16 +62,57 @@ function ExamContent() {
             setExam(examData);
             const questionsData = await questionService.getByExam(parseInt(examId), false);
             setQuestions(questionsData);
+
+            // Load saved progress from localStorage
+            if (storageKey && !hasLoadedProgress.current) {
+                hasLoadedProgress.current = true;
+                try {
+                    const saved = localStorage.getItem(storageKey);
+                    if (saved) {
+                        const progress = JSON.parse(saved);
+                        if (progress.userAnswers) setUserAnswers(progress.userAnswers);
+                        if (progress.answerResults) setAnswerResults(progress.answerResults);
+                        if (typeof progress.currentIndex === "number") setCurrentIndex(progress.currentIndex);
+                        if (progress.questionNotes) setQuestionNotes(progress.questionNotes);
+                        if (progress.timeRemaining && isTestMode) setTimeRemaining(progress.timeRemaining);
+                        openSnackbar({
+                            text: "📂 Đã khôi phục tiến độ làm bài trước đó!",
+                            type: "info",
+                            duration: 3000,
+                        });
+                    }
+                } catch {
+                    // Ignore invalid localStorage data
+                }
+            }
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "Không thể tải đề thi");
         } finally {
             setIsLoading(false);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [examId]);
 
     useEffect(() => {
         fetchExamData();
     }, [fetchExamData]);
+
+    // Auto-save progress to localStorage
+    useEffect(() => {
+        if (!storageKey || isSubmitted || isLoading) return;
+        // Chỉ lưu khi đã có dữ liệu (tránh ghi đè bằng state rỗng)
+        if (Object.keys(userAnswers).length === 0 && currentIndex === 0) return;
+
+        const progress = {
+            userAnswers,
+            answerResults,
+            currentIndex,
+            questionNotes,
+            timeRemaining: isTestMode ? timeRemaining : undefined,
+            savedAt: new Date().toISOString(),
+        };
+        localStorage.setItem(storageKey, JSON.stringify(progress));
+    }, [storageKey, userAnswers, answerResults, currentIndex, questionNotes, timeRemaining, isTestMode, isSubmitted, isLoading]);
 
     // Initialize timer when exam loads (test mode)
     useEffect(() => {
@@ -121,23 +166,78 @@ function ExamContent() {
     const isTimeLow = isTestMode && timeRemaining > 0 && timeRemaining <= 300; // < 5 min
 
     /* ── handlers ── */
-    const handleSelectAnswer = (questionId: number, answerId: number) => {
+    const handleSelectAnswer = async (questionId: number, answerId: number) => {
         if (isSubmitted) return;
+
+        //ở practice mode không cho chọn lại nếu đã chọn
+        if (!isTestMode && answerResults[questionId]) return;
+
         setUserAnswers((prev) => ({ ...prev, [questionId]: answerId }));
+
+        //check đáp án ngay ở pratice mode
+        if (!isTestMode) {
+            try {
+                const result = await questionService.checkAnswer(questionId, answerId);
+                setAnswerResults((prev) => ({
+                    ...prev,
+                    [questionId]: {
+                        questionId,
+                        isCorrect: result.isCorrect,
+                        userAnswerId: answerId,
+                        correctAnswerId: result.correctAnswerId,
+                        explanation: result.explanation,
+                    },
+                }))
+            } catch (error) {
+                console.error("Check answer error:", error);
+            }
+        }
     };
 
     const handleSubmit = async () => {
         const answeredCount = Object.keys(userAnswers).length;
-        // In practice mode, require all questions answered. In test mode, allow partial.
-        if (!isTestMode && answeredCount < questions.length) {
+
+        // Practice mode: đã check từng câu rồi, chỉ cần tổng kết
+        if (!isTestMode) {
+            if (answeredCount < questions.length) {
+                openSnackbar({
+                    text: `Bạn còn ${questions.length - answeredCount} câu chưa trả lời!`,
+                    type: "warning",
+                    duration: 3000,
+                });
+                return;
+            }
+
+            // Lưu kết quả nếu đã đăng nhập
+            const token = getAuthToken();
+            if (token && examId) {
+                try {
+                    const answers = Object.entries(userAnswers).map(([qId, aId]) => ({
+                        questionId: parseInt(qId),
+                        answerId: aId,
+                    }));
+                    await examResultService.submitExam({
+                        examId: parseInt(examId),
+                        answers,
+                    });
+                } catch {
+                    // Không block flow nếu lưu thất bại
+                }
+            }
+
+            const score = calculateScore();
             openSnackbar({
-                text: `Bạn còn ${questions.length - answeredCount} câu chưa trả lời!`,
-                type: "warning",
-                duration: 3000,
+                text: `Điểm: ${score.percent}% (${score.correct}/${score.total})`,
+                type: score.percent >= 70 ? "success" : "warning",
+                duration: 5000,
             });
+            setIsSubmitted(true);
+            // Xóa tiến độ localStorage khi hoàn thành
+            if (storageKey) localStorage.removeItem(storageKey);
             return;
         }
 
+        // Test mode: check tất cả cùng lúc khi nộp bài
         setIsSubmitting(true);
         try {
             const token = getAuthToken();
@@ -188,6 +288,8 @@ function ExamContent() {
             }
 
             setIsSubmitted(true);
+            // Xóa tiến độ localStorage khi hoàn thành
+            if (storageKey) localStorage.removeItem(storageKey);
         } catch (err: unknown) {
             openSnackbar({
                 text: err instanceof Error ? err.message : "Không thể nộp bài",
@@ -379,13 +481,14 @@ function ExamContent() {
                                 {currentQuestion.answers.map((answer, idx) => {
                                     const isSelected = userAnswers[currentQuestion.id] === answer.id;
                                     const result = answerResults[currentQuestion.id];
-                                    const isCorrectAnswer = isSubmitted && result && result.correctAnswerId === answer.id;
-                                    const isWrongSelection = isSubmitted && isSelected && result && !result.isCorrect;
+                                    const hasResult = !!result; // true nếu câu đã được check (practice) hoặc đã submit
+                                    const isCorrectAnswer = hasResult && result.correctAnswerId === answer.id;
+                                    const isWrongSelection = hasResult && isSelected && !result.isCorrect;
 
                                     let cardStyle = "border-white/[0.06] bg-slate-900/40 hover:border-white/[0.12] hover:bg-slate-900/60";
                                     let letterStyle = "bg-slate-800 text-slate-400";
 
-                                    if (isSubmitted) {
+                                    if (hasResult) {
                                         if (isCorrectAnswer) {
                                             cardStyle = "border-green-500/40 bg-green-500/10";
                                             letterStyle = "bg-green-500/20 text-green-400";
@@ -401,9 +504,9 @@ function ExamContent() {
                                     return (
                                         <button
                                             key={answer.id}
-                                            className={`w-full text-left border rounded-xl p-4 transition-all duration-200 ${cardStyle} ${!isSubmitted ? "cursor-pointer active:scale-[0.99]" : "cursor-default"}`}
+                                            className={`w-full text-left border rounded-xl p-4 transition-all duration-200 ${cardStyle} ${!(isSubmitted || hasResult) ? "cursor-pointer active:scale-[0.99]" : "cursor-default"}`}
                                             onClick={() => handleSelectAnswer(currentQuestion.id, answer.id)}
-                                            disabled={isSubmitted}
+                                            disabled={isSubmitted || hasResult}
                                         >
                                             <div className="flex items-start gap-3">
                                                 <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold flex-shrink-0 ${letterStyle}`}>
@@ -412,10 +515,10 @@ function ExamContent() {
                                                 <span className={`flex-1 text-sm leading-relaxed pt-1 ${isSelected || isCorrectAnswer ? "text-white" : "text-slate-300"}`}>
                                                     {answer.content}
                                                 </span>
-                                                {isSubmitted && isCorrectAnswer && (
+                                                {isCorrectAnswer && (
                                                     <span className="text-green-400 text-lg flex-shrink-0">✓</span>
                                                 )}
-                                                {isSubmitted && isWrongSelection && (
+                                                {isWrongSelection && (
                                                     <span className="text-red-400 text-lg flex-shrink-0">✕</span>
                                                 )}
                                             </div>
@@ -425,7 +528,7 @@ function ExamContent() {
                             </div>
 
                             {/* Explanation (after submit) */}
-                            {isSubmitted && answerResults[currentQuestion.id]?.explanation && (
+                            {answerResults[currentQuestion.id]?.explanation && (
                                 <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-5">
                                     <div className="flex items-center gap-2 mb-3">
                                         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/20 text-sm">💡</span>
@@ -613,7 +716,7 @@ function ExamContent() {
 
                             let cellBg = "bg-slate-800/60 border-slate-700/50 text-slate-500";
 
-                            if (isSubmitted && result) {
+                            if (result) {
                                 cellBg = result.isCorrect
                                     ? "bg-green-500/15 border-green-500/40 text-green-400"
                                     : "bg-red-500/15 border-red-500/40 text-red-400";
@@ -655,7 +758,7 @@ function ExamContent() {
                             <div className="h-3 w-3 rounded-full bg-emerald-400" />
                             <span className="text-xs text-slate-500">Đã làm</span>
                         </div>
-                        {isSubmitted && (
+                        {(isSubmitted || Object.keys(answerResults).length > 0) && (
                             <>
                                 <div className="flex items-center gap-1.5">
                                     <div className="h-3 w-3 rounded-full bg-green-500" />
