@@ -9,10 +9,10 @@ import { getAuthToken } from "@/lib/api";
 
 // Level colors
 const levelColors: Record<string, string> = {
-    Foundational: "bg-green-500/20 text-green-400",
+    Practitioner: "bg-green-500/20 text-green-400",
     Associate: "bg-blue-500/20 text-blue-400",
     Professional: "bg-purple-500/20 text-purple-400",
-    Specialty: "bg-pink-500/20 text-pink-400",
+    Expert: "bg-pink-500/20 text-pink-400",
 };
 
 const HistoryPage = () => {
@@ -179,7 +179,7 @@ const HistoryPage = () => {
                                     <div
                                         key={result.id}
                                         className="bg-slate-800/40 border border-white/5 rounded-2xl p-4 cursor-pointer active:scale-[0.98] transition-all hover:bg-slate-800/60"
-                                        onClick={() => router.push(`/exam?id=${result.exam.id}`)}
+                                        onClick={() => router.push(`/history/detail?id=${result.id}&examId=${result.exam.id}`)}
                                     >
                                         <div className="flex gap-3">
                                             {/* Score Badge */}

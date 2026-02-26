@@ -144,6 +144,7 @@ const certifications = [
 
 // Level badge colors
 const levelColors: Record<string, string> = {
+    Practitioner: "bg-green-500/20 text-green-400 border-green-500/30",
     Foundational: "bg-green-500/20 text-green-400 border-green-500/30",
     Fundamentals: "bg-green-500/20 text-green-400 border-green-500/30",
     Associate: "bg-blue-500/20 text-blue-400 border-blue-500/30",

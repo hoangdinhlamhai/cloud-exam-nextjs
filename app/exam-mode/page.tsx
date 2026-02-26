@@ -13,10 +13,10 @@ const providerMeta: Record<string, { icon: string; gradient: string }> = {
 };
 
 const levelMeta: Record<string, { label: string; badge: string }> = {
-    Foundational: { label: "Foundational", badge: "border-green-500/30 bg-green-500/10 text-green-400" },
+    Practitioner: { label: "Practitioner", badge: "border-green-500/30 bg-green-500/10 text-green-400" },
     Associate: { label: "Associate", badge: "border-blue-500/30 bg-blue-500/10 text-blue-400" },
     Professional: { label: "Professional", badge: "border-purple-500/30 bg-purple-500/10 text-purple-400" },
-    Specialty: { label: "Specialty", badge: "border-pink-500/30 bg-pink-500/10 text-pink-400" },
+    Expert: { label: "Expert", badge: "border-pink-500/30 bg-pink-500/10 text-pink-400" },
 };
 
 /* ──────────── comparison data ──────────── */

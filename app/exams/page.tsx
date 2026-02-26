@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, Suspense } from "react";
+import React, { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Spinner from "@/components/Spinner";
 import { examService, Exam, ExamListResponse } from "@/services/exam";
-import { courseService, Course } from "@/services/course";
+import { courseService, Course, Provider } from "@/services/course";
 
 /* ──────────── helpers / config ──────────── */
 
 const levelMeta: Record<string, { label: string; dot: string; badge: string }> = {
-    Foundational: { label: "Foundational", dot: "bg-green-400", badge: "border-green-500/30 bg-green-500/10 text-green-400" },
+    Practitioner: { label: "Practitioner", dot: "bg-green-400", badge: "border-green-500/30 bg-green-500/10 text-green-400" },
     Associate: { label: "Associate", dot: "bg-blue-400", badge: "border-blue-500/30 bg-blue-500/10 text-blue-400" },
     Professional: { label: "Professional", dot: "bg-purple-400", badge: "border-purple-500/30 bg-purple-500/10 text-purple-400" },
-    Specialty: { label: "Specialty", dot: "bg-pink-400", badge: "border-pink-500/30 bg-pink-500/10 text-pink-400" },
+    Expert: { label: "Expert", dot: "bg-pink-400", badge: "border-pink-500/30 bg-pink-500/10 text-pink-400" },
 };
 
 const providerMeta: Record<string, { icon: string; gradient: string }> = {
@@ -48,9 +48,44 @@ function ExamsContent() {
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState<string>("newest");
     const [questionFilter, setQuestionFilter] = useState<string>("all");
+    const [activeProvider, setActiveProvider] = useState<string>("All");
+    const [providers, setProviders] = useState<Provider[]>([]);
+    const [providerDropdownOpen, setProviderDropdownOpen] = useState(false);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
+
+    /* refs */
+    const providersRef = useRef<Provider[]>([]);
+    providersRef.current = providers;
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    /* close dropdown on click outside */
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                setProviderDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    /* fetch all providers on mount */
+    useEffect(() => {
+        const fetchProviders = async () => {
+            try {
+                const res = await courseService.getAll(1, 100);
+                const uniqueProviders = res.data
+                    .map(c => c.provider)
+                    .filter((p, i, arr) => p && arr.findIndex(x => x.id === p.id) === i);
+                setProviders(uniqueProviders);
+            } catch {
+                // silently fail
+            }
+        };
+        fetchProviders();
+    }, []);
 
     /* fetch */
     const fetchExams = useCallback(async () => {
@@ -65,7 +100,9 @@ function ExamsContent() {
 
             // Fetch exams
             const courseId = courseIdParam ? parseInt(courseIdParam) : undefined;
-            const res: ExamListResponse = await examService.getAll(page, 12, courseId);
+            const selectedProvider = providersRef.current.find(p => p.name === activeProvider);
+            const providerId = selectedProvider ? selectedProvider.id : undefined;
+            const res: ExamListResponse = await examService.getAll(page, 12, courseId, providerId);
 
             setExams(res.data);
             setTotalPages(res.totalPages);
@@ -75,16 +112,16 @@ function ExamsContent() {
         } finally {
             setIsLoading(false);
         }
-    }, [page, courseIdParam, course]);
+    }, [page, courseIdParam, course, activeProvider]);
 
     useEffect(() => {
         fetchExams();
     }, [fetchExams]);
 
-    /* Reset page when filters change (client-side filters) */
+    /* Reset page when filters change */
     useEffect(() => {
         setPage(1);
-    }, [search, sort, questionFilter]);
+    }, [search, sort, questionFilter, activeProvider]);
 
     /* Client-side filtering & sorting */
     const filteredExams = React.useMemo(() => {
@@ -257,6 +294,69 @@ function ExamsContent() {
                         />
                     </div>
 
+                    {/* Provider dropdown */}
+                    {!courseIdParam && (
+                        <div className="relative" ref={dropdownRef}>
+                            <button
+                                onClick={() => setProviderDropdownOpen(!providerDropdownOpen)}
+                                className={`flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-sm font-semibold transition-all ${activeProvider !== "All"
+                                    ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-300"
+                                    : "border-white/10 bg-white/[0.04] text-slate-300 hover:border-white/20 hover:bg-white/[0.08]"
+                                    }`}
+                            >
+                                <span>{activeProvider === "All" ? "☁️" : (providerMeta[activeProvider]?.icon || "☁️")}</span>
+                                <span>{activeProvider === "All" ? "Nhà cung cấp" : activeProvider}</span>
+                                <svg
+                                    className={`h-3.5 w-3.5 text-slate-400 transition-transform ${providerDropdownOpen ? "rotate-180" : ""}`}
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+
+                            {providerDropdownOpen && (
+                                <div className="absolute left-0 top-full mt-2 z-50 min-w-[180px] rounded-xl border border-white/10 bg-slate-900/95 backdrop-blur-xl shadow-2xl shadow-black/40 py-1.5 animate-in fade-in slide-in-from-top-1">
+                                    <button
+                                        onClick={() => { setActiveProvider("All"); setProviderDropdownOpen(false); }}
+                                        className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition-colors ${activeProvider === "All"
+                                            ? "text-cyan-300 bg-cyan-500/10"
+                                            : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
+                                            }`}
+                                    >
+                                        <span>☁️</span>
+                                        <span>Tất cả</span>
+                                        {activeProvider === "All" && (
+                                            <svg className="ml-auto h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                    {providers.map((prov) => {
+                                        const meta = providerMeta[prov.name] || { icon: "☁️", gradient: "from-slate-500 to-slate-400" };
+                                        return (
+                                            <button
+                                                key={prov.id}
+                                                onClick={() => { setActiveProvider(prov.name); setProviderDropdownOpen(false); }}
+                                                className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition-colors ${activeProvider === prov.name
+                                                    ? "text-cyan-300 bg-cyan-500/10"
+                                                    : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
+                                                    }`}
+                                            >
+                                                <span>{meta.icon}</span>
+                                                <span>{prov.name}</span>
+                                                {activeProvider === prov.name && (
+                                                    <svg className="ml-auto h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                                    </svg>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     {/* Filters Group */}
                     <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1 lg:pb-0">
                         {/* Sort Dropdown simulated with select */}
@@ -300,6 +400,9 @@ function ExamsContent() {
                 {!isLoading && !error && (
                     <p className="mb-6 text-sm text-slate-500">
                         Hiển thị <span className="text-slate-300 font-semibold">{filteredExams.length}</span> / {total} đề thi
+                        {activeProvider !== "All" && (
+                            <span> · Nhà cung cấp: <span className="text-cyan-400">{activeProvider}</span></span>
+                        )}
                     </p>
                 )}
 
@@ -331,7 +434,7 @@ function ExamsContent() {
                         <span className="text-5xl">📝</span>
                         <p className="text-slate-400 text-base font-medium">Không tìm thấy đề thi nào</p>
                         <button
-                            onClick={() => { setSearch(""); setQuestionFilter("all"); setSort("newest"); }}
+                            onClick={() => { setSearch(""); setQuestionFilter("all"); setSort("newest"); setActiveProvider("All"); }}
                             className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-300 hover:bg-white/[0.08] transition-colors"
                         >
                             Xoá bộ lọc

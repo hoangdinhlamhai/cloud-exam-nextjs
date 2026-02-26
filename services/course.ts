@@ -9,7 +9,7 @@ export interface Course {
     id: number;
     title: string;
     description: string | null;
-    level: "Foundational" | "Associate" | "Professional" | "Specialty";
+    level: "Practitioner" | "Associate" | "Professional" | "Expert";
     thumbnailUrl: string | null;
     isActive: boolean;
     createdAt: string;

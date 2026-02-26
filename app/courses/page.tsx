@@ -8,10 +8,10 @@ import { courseService, Course, CourseListResponse, Provider } from "@/services/
 /* ──────────── helpers / config ──────────── */
 
 const levelMeta: Record<string, { label: string; dot: string; badge: string }> = {
-    Foundational: { label: "Foundational", dot: "bg-green-400", badge: "border-green-500/30 bg-green-500/10 text-green-400" },
+    Practitioner: { label: "Practitioner", dot: "bg-green-400", badge: "border-green-500/30 bg-green-500/10 text-green-400" },
     Associate: { label: "Associate", dot: "bg-blue-400", badge: "border-blue-500/30 bg-blue-500/10 text-blue-400" },
     Professional: { label: "Professional", dot: "bg-purple-400", badge: "border-purple-500/30 bg-purple-500/10 text-purple-400" },
-    Specialty: { label: "Specialty", dot: "bg-pink-400", badge: "border-pink-500/30 bg-pink-500/10 text-pink-400" },
+    Expert: { label: "Expert", dot: "bg-pink-400", badge: "border-pink-500/30 bg-pink-500/10 text-pink-400" },
 };
 
 const providerMeta: Record<string, { icon: string; gradient: string }> = {
@@ -20,7 +20,7 @@ const providerMeta: Record<string, { icon: string; gradient: string }> = {
     GCP: { icon: "🔴", gradient: "from-red-500 to-yellow-400" },
 };
 
-const allLevels = ["All", "Foundational", "Associate", "Professional", "Specialty"] as const;
+const allLevels = ["All", "Practitioner", "Associate", "Professional", "Expert"] as const;
 
 /* ──────────── component ──────────── */
 
@@ -321,7 +321,7 @@ const CoursesPage = () => {
                         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                             {courses.map((course) => {
                                 const prov = providerMeta[course.provider?.name] || { icon: "☁️", gradient: "from-slate-500 to-slate-400" };
-                                const lvl = levelMeta[course.level] || levelMeta.Foundational;
+                                const lvl = levelMeta[course.level] || levelMeta.Practitioner;
                                 return (
                                     <article
                                         key={course.id}

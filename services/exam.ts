@@ -51,13 +51,15 @@ export const examService = {
     getAll: async (
         page: number = 1,
         limit: number = 10,
-        courseId?: number
+        courseId?: number,
+        providerId?: number
     ): Promise<ExamListResponse> => {
         try {
             const params = new URLSearchParams();
             params.append("page", page.toString());
             params.append("limit", limit.toString());
             if (courseId) params.append("courseId", courseId.toString());
+            if (providerId) params.append("providerId", providerId.toString());
 
             const response = await fetch(`${API_URL}/exams?${params.toString()}`);
 
