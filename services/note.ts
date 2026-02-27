@@ -18,6 +18,34 @@ export interface CreateNoteDto {
 
 export const noteService = {
     /**
+     * Get all notes for current user
+     * Requires authentication
+     */
+    getAllNotes: async (): Promise<Note[]> => {
+        const token = getAuthToken();
+        if (!token) {
+            throw new Error("Authentication required");
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/notes`, {
+                method: "GET",
+                headers: createAuthHeaders(),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to fetch notes");
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Get all notes error:", error);
+            throw error;
+        }
+    },
+
+    /**
      * Create a new note
      * Requires authentication
      */
@@ -57,7 +85,7 @@ export const noteService = {
         }
 
         try {
-            const response = await fetch(`${API_URL}/notes/${courseId}`, {
+            const response = await fetch(`${API_URL}/notes/course/${courseId}`, {
                 method: "GET",
                 headers: createAuthHeaders(),
             });
@@ -85,7 +113,7 @@ export const noteService = {
         }
 
         try {
-            const response = await fetch(`${API_URL}/notes/${questionId}`, {
+            const response = await fetch(`${API_URL}/notes/question/${questionId}`, {
                 method: "GET",
                 headers: createAuthHeaders(),
             });
@@ -126,15 +154,5 @@ export const noteService = {
             console.error("Delete note error:", error);
             throw error;
         }
-    },
-
-    /**
-     * Get all notes for current user (all courses)
-     * This is a client-side aggregation since backend doesn't have this endpoint
-     */
-    getAllNotes: async (): Promise<Note[]> => {
-        // Note: Backend doesn't have a direct endpoint to get all notes
-        // This would need to be implemented on backend or done differently
-        throw new Error("Not implemented - requires backend endpoint");
     },
 };
