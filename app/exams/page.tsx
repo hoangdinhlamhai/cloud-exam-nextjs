@@ -9,16 +9,16 @@ import { courseService, Course, Provider } from "@/services/course";
 /* ──────────── helpers / config ──────────── */
 
 const levelMeta: Record<string, { label: string; dot: string; badge: string }> = {
-    Practitioner: { label: "Practitioner", dot: "bg-green-400", badge: "border-green-500/30 bg-green-500/10 text-green-400" },
-    Associate: { label: "Associate", dot: "bg-blue-400", badge: "border-blue-500/30 bg-blue-500/10 text-blue-400" },
-    Professional: { label: "Professional", dot: "bg-purple-400", badge: "border-purple-500/30 bg-purple-500/10 text-purple-400" },
-    Expert: { label: "Expert", dot: "bg-pink-400", badge: "border-pink-500/30 bg-pink-500/10 text-pink-400" },
+    Practitioner: { label: "Practitioner", dot: "bg-emerald-500", badge: "border-emerald-200 bg-emerald-50 text-emerald-700" },
+    Associate: { label: "Associate", dot: "bg-blue-500", badge: "border-blue-200 bg-blue-50 text-blue-700" },
+    Professional: { label: "Professional", dot: "bg-violet-500", badge: "border-violet-200 bg-violet-50 text-violet-700" },
+    Expert: { label: "Expert", dot: "bg-pink-500", badge: "border-pink-200 bg-pink-50 text-pink-700" },
 };
 
-const providerMeta: Record<string, { icon: string; gradient: string }> = {
-    AWS: { icon: "🔶", gradient: "from-orange-500 to-amber-400" },
-    Azure: { icon: "🔷", gradient: "from-blue-500 to-cyan-400" },
-    GCP: { icon: "🔴", gradient: "from-red-500 to-yellow-400" },
+const providerMeta: Record<string, { icon: string; accent: string }> = {
+    AWS: { icon: "🔶", accent: "bg-blue-600" },
+    Azure: { icon: "🔷", accent: "bg-blue-600" },
+    GCP: { icon: "🔴", accent: "bg-blue-600" },
 };
 
 // Filter options
@@ -152,25 +152,20 @@ function ExamsContent() {
 
     /* ──── render ──── */
     return (
-        <div className="min-h-screen bg-slate-950 text-white selection:bg-cyan-500/30">
+        <div className="app-shell min-h-screen">
             {/* ═══════ HEADER ═══════ */}
-            <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/20">
+            <header className="site-header sticky top-0 z-50">
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 lg:px-8">
                     {/* Logo */}
-                    <button onClick={() => router.push("/home")} className="flex items-center gap-2.5 group">
-                        <div className="relative">
-                            <div className="absolute inset-0 rounded-xl bg-cyan-400 blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
-                            <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg">
-                                <span className="text-base font-black text-white">C</span>
-                            </div>
-                        </div>
-                        <span className="text-lg font-extrabold tracking-tight">
-                            Cloud<span className="text-cyan-400">Exam</span>
+                    <button onClick={() => router.push("/home")} className="flex items-center gap-2.5 rounded-lg">
+                        <span className="brand-mark flex h-9 w-9 items-center justify-center rounded-lg text-base font-bold">C</span>
+                        <span className="wordmark text-lg font-bold tracking-tight">
+                            Cloud<span className="wordmark-accent">Exam</span>
                         </span>
                     </button>
 
                     {/* Nav */}
-                    <nav className="hidden md:flex items-center gap-1">
+                    <nav className="hidden items-center gap-1 md:flex">
                         {[
                             { label: "Trang chủ", route: "/home" },
                             { label: "Khoá học", route: "/courses" },
@@ -180,9 +175,9 @@ function ExamsContent() {
                             <button
                                 key={l.route}
                                 onClick={() => router.push(l.route)}
-                                className={`px-4 py-2 text-[13px] font-medium rounded-lg transition-colors ${l.route === "/exams"
-                                    ? "text-cyan-300 bg-cyan-500/10"
-                                    : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
+                                className={`rounded-lg px-4 py-2 text-[13px] font-medium transition-colors ${l.route === "/exams"
+                                    ? "border border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300"
+                                    : "nav-link"
                                     }`}
                             >
                                 {l.label}
@@ -192,7 +187,7 @@ function ExamsContent() {
 
                     <button
                         onClick={() => router.push("/home")}
-                        className="flex md:hidden h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-300 hover:bg-white/[0.06]"
+                        className="icon-button flex h-9 w-9 items-center justify-center rounded-lg md:hidden"
                     >
                         ←
                     </button>
@@ -200,74 +195,67 @@ function ExamsContent() {
             </header>
 
             {/* ═══════ HERO / PAGE TITLE ═══════ */}
-            <section className="relative overflow-hidden border-b border-white/[0.06] bg-gradient-to-b from-slate-900/50 to-slate-950">
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -top-20 left-1/2 -translate-x-1/2 h-[400px] w-[700px] rounded-full bg-gradient-to-b from-cyan-600/15 to-transparent blur-3xl" />
-                </div>
-
-                <div className="relative z-10 mx-auto max-w-7xl px-5 lg:px-8 pt-14 pb-10">
+            <section className="border-b" style={{ borderColor: "var(--border-clr)" }}>
+                <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
                     <div className="flex flex-col gap-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 mb-1">
+                        <p className="app-eyebrow mb-1 text-xs font-semibold uppercase tracking-[0.2em]">
                             Luyện tập
                         </p>
-                        <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">
-                            Đề thi <span className="text-cyan-400">thực chiến</span>
+                        <h1 className="text-3xl font-bold leading-tight sm:text-4xl" style={{ color: "var(--text-primary)" }}>
+                            Đề thi <span className="wordmark-accent">thực chiến</span>
                         </h1>
-                        <p className="mt-4 max-w-2xl text-base text-slate-400 leading-relaxed sm:text-lg">
+                        <p className="mt-4 max-w-2xl text-base leading-relaxed sm:text-lg" style={{ color: "var(--text-secondary)" }}>
                             Luyện tập với hàng trăm đề thi mô phỏng sát kì thi thật AWS, Azure & GCP.
                         </p>
                     </div>
 
                     {/* Course info banner with thumbnail */}
                     {course && (() => {
-                        const courseProv = providerMeta[course.provider?.name] || { icon: "☁️", gradient: "from-slate-500 to-slate-400" };
+                        const courseProv = providerMeta[course.provider?.name] || { icon: "☁️", accent: "bg-blue-600" };
                         const courseLvl = levelMeta[course.level] || levelMeta.Associate;
                         return (
-                            <div className="mt-8 flex flex-col sm:flex-row items-start gap-5 rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-md p-5 relative overflow-hidden">
-                                {/* Background glow */}
-                                <div className={`pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br ${courseProv.gradient} opacity-10 blur-3xl`} />
-
+                            <div className="surface-card mt-8 flex flex-col items-start gap-5 rounded-xl p-5 sm:flex-row">
                                 {/* Thumbnail */}
                                 {course.thumbnailUrl ? (
-                                    <div className="relative flex-shrink-0">
-                                        <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${courseProv.gradient} opacity-20 blur-lg`} />
+                                    <div className="flex-shrink-0">
                                         <img
                                             src={course.thumbnailUrl}
                                             alt={course.title}
-                                            className="relative w-24 h-24 sm:w-28 sm:h-28 object-contain rounded-xl border border-white/10 bg-white/[0.06] p-3"
+                                            className="h-24 w-24 rounded-lg border bg-white p-3 object-contain sm:h-28 sm:w-28 dark:bg-slate-800"
+                                            style={{ borderColor: "var(--border-clr)" }}
                                         />
                                     </div>
                                 ) : (
-                                    <div className={`flex-shrink-0 flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-xl border border-white/10 bg-gradient-to-br ${courseProv.gradient} opacity-80`}>
+                                    <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-lg border bg-slate-50 sm:h-28 sm:w-28 dark:bg-slate-800" style={{ borderColor: "var(--border-clr)" }}>
                                         <span className="text-4xl">{courseProv.icon}</span>
                                     </div>
                                 )}
 
                                 {/* Course details */}
-                                <div className="relative z-10 flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-2">
+                                <div className="min-w-0 flex-1">
+                                    <div className="mb-2 flex items-center gap-2">
                                         <span className="text-lg">{courseProv.icon}</span>
-                                        <span className="text-xs font-semibold text-slate-400">{course.provider?.name || "Cloud"}</span>
-                                        <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${courseLvl.badge}`}>
+                                        <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>{course.provider?.name || "Cloud"}</span>
+                                        <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${courseLvl.badge} dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200`}>
                                             {courseLvl.label}
                                         </span>
                                     </div>
-                                    <h2 className="text-lg sm:text-xl font-bold text-white leading-snug mb-1.5 line-clamp-2">
+                                    <h2 className="mb-1.5 line-clamp-2 text-lg font-bold leading-snug sm:text-xl" style={{ color: "var(--text-primary)" }}>
                                         {course.title}
                                     </h2>
                                     {course.description && (
-                                        <p className="text-sm text-slate-400 leading-relaxed line-clamp-2 mb-3">
+                                        <p className="mb-3 line-clamp-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                                             {course.description}
                                         </p>
                                     )}
                                     <div className="flex items-center gap-3">
-                                        <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
-                                            <span className="text-cyan-500">📋</span>
-                                            <span className="font-semibold text-slate-300">{course._count?.exams ?? total}</span> đề thi
+                                        <span className="inline-flex items-center gap-1.5 text-xs" style={{ color: "var(--text-secondary)" }}>
+                                            <span>📋</span>
+                                            <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{course._count?.exams ?? total}</span> đề thi
                                         </span>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); router.push("/courses"); }}
-                                            className="text-xs text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+                                            className="app-link text-xs font-medium transition-colors"
                                         >
                                             ← Quay lại khoá học
                                         </button>
@@ -280,17 +268,17 @@ function ExamsContent() {
             </section>
 
             {/* ═══════ FILTERS BAR ═══════ */}
-            <section className="sticky top-[57px] z-40 bg-slate-950/90 backdrop-blur-xl border-b border-white/[0.06]">
-                <div className="mx-auto max-w-7xl px-5 lg:px-8 py-4 flex flex-col lg:flex-row lg:items-center gap-4">
+            <section className="sticky top-[57px] z-40 border-b" style={{ background: "var(--header-bg)", borderColor: "var(--border-clr)" }}>
+                <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:px-8">
                     {/* Search */}
-                    <div className="relative flex-1 max-w-md">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
+                    <div className="relative max-w-md flex-1">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" style={{ color: "var(--text-muted)" }}>🔍</span>
                         <input
                             type="text"
                             placeholder="Tìm đề thi…"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/30 transition-colors"
+                            className="form-input w-full rounded-lg py-2.5 pl-10 pr-4 text-sm"
                         />
                     </div>
 
@@ -299,15 +287,15 @@ function ExamsContent() {
                         <div className="relative" ref={dropdownRef}>
                             <button
                                 onClick={() => setProviderDropdownOpen(!providerDropdownOpen)}
-                                className={`flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-sm font-semibold transition-all ${activeProvider !== "All"
-                                    ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-300"
-                                    : "border-white/10 bg-white/[0.04] text-slate-300 hover:border-white/20 hover:bg-white/[0.08]"
+                                className={`flex items-center gap-2 rounded-lg border px-3.5 py-2.5 text-sm font-semibold transition-colors ${activeProvider !== "All"
+                                    ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300"
+                                    : "secondary-action"
                                     }`}
                             >
                                 <span>{activeProvider === "All" ? "☁️" : (providerMeta[activeProvider]?.icon || "☁️")}</span>
                                 <span>{activeProvider === "All" ? "Nhà cung cấp" : activeProvider}</span>
                                 <svg
-                                    className={`h-3.5 w-3.5 text-slate-400 transition-transform ${providerDropdownOpen ? "rotate-180" : ""}`}
+                                    className={`h-3.5 w-3.5 transition-transform ${providerDropdownOpen ? "rotate-180" : ""}`}
                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
                                 >
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -315,37 +303,39 @@ function ExamsContent() {
                             </button>
 
                             {providerDropdownOpen && (
-                                <div className="absolute left-0 top-full mt-2 z-50 min-w-[180px] rounded-xl border border-white/10 bg-slate-900/95 backdrop-blur-xl shadow-2xl shadow-black/40 py-1.5 animate-in fade-in slide-in-from-top-1">
+                                <div className="surface-card absolute left-0 top-full z-50 mt-2 min-w-[180px] rounded-lg py-1.5">
                                     <button
                                         onClick={() => { setActiveProvider("All"); setProviderDropdownOpen(false); }}
                                         className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition-colors ${activeProvider === "All"
-                                            ? "text-cyan-300 bg-cyan-500/10"
-                                            : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
+                                            ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                                            : "hover:bg-slate-50 dark:hover:bg-slate-800"
                                             }`}
+                                        style={{ color: activeProvider === "All" ? undefined : "var(--text-secondary)" }}
                                     >
                                         <span>☁️</span>
                                         <span>Tất cả</span>
                                         {activeProvider === "All" && (
-                                            <svg className="ml-auto h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                            <svg className="ml-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                             </svg>
                                         )}
                                     </button>
                                     {providers.map((prov) => {
-                                        const meta = providerMeta[prov.name] || { icon: "☁️", gradient: "from-slate-500 to-slate-400" };
+                                        const meta = providerMeta[prov.name] || { icon: "☁️", accent: "bg-blue-600" };
                                         return (
                                             <button
                                                 key={prov.id}
                                                 onClick={() => { setActiveProvider(prov.name); setProviderDropdownOpen(false); }}
                                                 className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition-colors ${activeProvider === prov.name
-                                                    ? "text-cyan-300 bg-cyan-500/10"
-                                                    : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
+                                                    ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                                                    : "hover:bg-slate-50 dark:hover:bg-slate-800"
                                                     }`}
+                                                style={{ color: activeProvider === prov.name ? undefined : "var(--text-secondary)" }}
                                             >
                                                 <span>{meta.icon}</span>
                                                 <span>{prov.name}</span>
                                                 {activeProvider === prov.name && (
-                                                    <svg className="ml-auto h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                    <svg className="ml-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                                     </svg>
                                                 )}
@@ -358,33 +348,34 @@ function ExamsContent() {
                     )}
 
                     {/* Filters Group */}
-                    <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1 lg:pb-0">
+                    <div className="no-scrollbar flex items-center gap-3 overflow-x-auto pb-1 lg:pb-0">
                         {/* Sort Dropdown simulated with select */}
                         <div className="relative">
                             <select
                                 value={sort}
                                 onChange={(e) => setSort(e.target.value)}
-                                className="appearance-none rounded-lg border border-white/10 bg-slate-900 py-2 pl-3 pr-8 text-xs font-semibold text-slate-300 focus:outline-none focus:border-cyan-500/50 hover:bg-white/[0.06] transition-colors cursor-pointer"
+                                className="form-input cursor-pointer appearance-none rounded-lg py-2 pl-3 pr-8 text-xs font-semibold"
                             >
                                 {sortOptions.map(opt => (
                                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                                 ))}
                             </select>
-                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-[10px] pointer-events-none">▼</span>
+                            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px]" style={{ color: "var(--text-muted)" }}>▼</span>
                         </div>
 
-                        <div className="h-6 w-px bg-white/10 hidden sm:block"></div>
+                        <div className="hidden h-6 w-px bg-slate-200 sm:block dark:bg-slate-700"></div>
 
                         {/* Question Count Pills */}
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <div className="flex flex-shrink-0 items-center gap-1.5">
                             {questionCountOptions.map((opt) => (
                                 <button
                                     key={opt.value}
                                     onClick={() => setQuestionFilter(opt.value)}
-                                    className={`whitespace-nowrap rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${questionFilter === opt.value
-                                        ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
-                                        : "text-slate-400 border border-transparent hover:text-slate-200 hover:bg-white/[0.06]"
+                                    className={`whitespace-nowrap rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${questionFilter === opt.value
+                                        ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300"
+                                        : "border-transparent hover:bg-slate-100 dark:hover:bg-slate-800"
                                         }`}
+                                    style={{ color: questionFilter === opt.value ? undefined : "var(--text-secondary)" }}
                                 >
                                     {opt.label}
                                 </button>
@@ -395,33 +386,33 @@ function ExamsContent() {
             </section>
 
             {/* ═══════ CONTENT ═══════ */}
-            <main className="mx-auto max-w-7xl px-5 lg:px-8 pt-8 pb-20">
+            <main className="mx-auto max-w-7xl px-5 pb-20 pt-8 lg:px-8">
                 {/* Result count */}
                 {!isLoading && !error && (
-                    <p className="mb-6 text-sm text-slate-500">
-                        Hiển thị <span className="text-slate-300 font-semibold">{filteredExams.length}</span> / {total} đề thi
+                    <p className="mb-6 text-sm" style={{ color: "var(--text-muted)" }}>
+                        Hiển thị <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{filteredExams.length}</span> / {total} đề thi
                         {activeProvider !== "All" && (
-                            <span> · Nhà cung cấp: <span className="text-cyan-400">{activeProvider}</span></span>
+                            <span> · Nhà cung cấp: <span className="app-link">{activeProvider}</span></span>
                         )}
                     </p>
                 )}
 
                 {/* Loading */}
                 {isLoading && (
-                    <div className="flex flex-col items-center justify-center py-32 gap-4">
+                    <div className="flex flex-col items-center justify-center gap-4 py-32">
                         <Spinner visible />
-                        <p className="text-slate-500 text-sm">Đang tải đề thi…</p>
+                        <p className="text-sm" style={{ color: "var(--text-muted)" }}>Đang tải đề thi…</p>
                     </div>
                 )}
 
                 {/* Error */}
                 {error && (
-                    <div className="flex flex-col items-center justify-center py-32 gap-4">
+                    <div className="flex flex-col items-center justify-center gap-4 py-32">
                         <span className="text-4xl">⚠️</span>
-                        <p className="text-red-400 text-sm font-medium">{error}</p>
+                        <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
                         <button
                             onClick={fetchExams}
-                            className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-white hover:bg-slate-700 transition-colors"
+                            className="primary-action rounded-lg px-4 py-2 text-sm font-semibold"
                         >
                             Thử lại
                         </button>
@@ -430,12 +421,12 @@ function ExamsContent() {
 
                 {/* Empty */}
                 {!isLoading && !error && filteredExams.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-32 gap-4">
+                    <div className="flex flex-col items-center justify-center gap-4 py-32">
                         <span className="text-5xl">📝</span>
-                        <p className="text-slate-400 text-base font-medium">Không tìm thấy đề thi nào</p>
+                        <p className="text-base font-medium" style={{ color: "var(--text-secondary)" }}>Không tìm thấy đề thi nào</p>
                         <button
                             onClick={() => { setSearch(""); setQuestionFilter("all"); setSort("newest"); setActiveProvider("All"); }}
-                            className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-300 hover:bg-white/[0.08] transition-colors"
+                            className="secondary-action rounded-lg px-4 py-2 text-sm font-medium"
                         >
                             Xoá bộ lọc
                         </button>
@@ -459,49 +450,46 @@ function ExamsContent() {
                                     <article
                                         key={exam.id}
                                         onClick={() => router.push(`/exam-mode?id=${exam.id}`)}
-                                        className="group relative cursor-pointer overflow-hidden rounded-2xl border border-white/[0.06] bg-slate-900/60 transition-all duration-300 hover:border-white/[0.12] hover:bg-slate-900/80 hover:-translate-y-1"
+                                        className="surface-card cursor-pointer overflow-hidden rounded-xl transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
                                     >
                                         {/* Top accent stripe */}
-                                        <div className={`h-1.5 bg-gradient-to-r ${prov.gradient}`} />
+                                        <div className={`h-1 ${prov.accent}`} />
 
                                         {/* Body */}
                                         <div className="p-6">
                                             {/* Provider + Level row */}
-                                            <div className="flex items-center gap-2 mb-4">
+                                            <div className="mb-4 flex items-center gap-2">
                                                 <span className="text-xl">{prov.icon}</span>
-                                                <span className="text-xs font-semibold text-slate-400">{providerName}</span>
+                                                <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>{providerName}</span>
                                             </div>
 
                                             {/* Title */}
-                                            <h3 className="text-lg font-bold leading-snug text-white group-hover:text-cyan-300 transition-colors line-clamp-2 mb-2">
+                                            <h3 className="mb-2 line-clamp-2 text-lg font-bold leading-snug" style={{ color: "var(--text-primary)" }}>
                                                 {exam.title}
                                             </h3>
 
                                             {/* Description */}
-                                            <p className="text-sm text-slate-400 leading-relaxed line-clamp-2 mb-5">
+                                            <p className="mb-5 line-clamp-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                                                 {exam.description || `Đề thi thực hành ${exam.title} với ${exam._count?.questions ?? 0} câu hỏi trắc nghiệm và giải thích chi tiết.`}
                                             </p>
 
                                             {/* Footer meta */}
-                                            <div className="flex items-center justify-between pt-4 border-t border-white/[0.06]">
-                                                <div className="flex items-center gap-4 text-sm text-slate-400">
+                                            <div className="flex items-center justify-between border-t pt-4" style={{ borderColor: "var(--border-clr)" }}>
+                                                <div className="flex items-center gap-4 text-sm" style={{ color: "var(--text-secondary)" }}>
                                                     <div className="flex items-center gap-1.5">
                                                         <span>🕐</span>
-                                                        <span className="font-medium text-slate-300">{exam.durationMinutes}p</span>
+                                                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{exam.durationMinutes}p</span>
                                                     </div>
                                                     <div className="flex items-center gap-1.5">
                                                         <span>📋</span>
-                                                        <span className="font-medium text-slate-300">{exam._count?.questions ?? 0} câu</span>
+                                                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{exam._count?.questions ?? 0} câu</span>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-1 text-xs font-semibold text-cyan-400 opacity-0 transition-opacity group-hover:opacity-100">
-                                                    Làm bài <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                                                <div className="app-link flex items-center gap-1 text-xs font-semibold">
+                                                    Làm bài <span>→</span>
                                                 </div>
                                             </div>
                                         </div>
-
-                                        {/* Hover glow */}
-                                        <div className={`pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br ${prov.gradient} opacity-0 blur-3xl transition-opacity group-hover:opacity-15`} />
                                     </article>
                                 );
                             })}
@@ -513,7 +501,7 @@ function ExamsContent() {
                                 <button
                                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                                     disabled={page === 1}
-                                    className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium text-slate-300 disabled:opacity-40 hover:bg-white/[0.08] transition-colors"
+                                    className="secondary-action rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-40"
                                 >
                                     ‹ Trước
                                 </button>
@@ -527,15 +515,16 @@ function ExamsContent() {
                                     }, [])
                                     .map((p, idx) =>
                                         p === "…" ? (
-                                            <span key={`dot-${idx}`} className="px-2 text-slate-600">…</span>
+                                            <span key={`dot-${idx}`} className="px-2" style={{ color: "var(--text-muted)" }}>…</span>
                                         ) : (
                                             <button
                                                 key={p}
                                                 onClick={() => setPage(p)}
-                                                className={`h-9 w-9 rounded-lg text-sm font-semibold transition-colors ${page === p
-                                                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
-                                                    : "text-slate-400 hover:text-white hover:bg-white/[0.06]"
+                                                className={`h-9 w-9 rounded-lg border text-sm font-semibold transition-colors ${page === p
+                                                    ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300"
+                                                    : "border-transparent hover:bg-slate-100 dark:hover:bg-slate-800"
                                                     }`}
+                                                style={{ color: page === p ? undefined : "var(--text-secondary)" }}
                                             >
                                                 {p}
                                             </button>
@@ -545,7 +534,7 @@ function ExamsContent() {
                                 <button
                                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                     disabled={page === totalPages}
-                                    className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium text-slate-300 disabled:opacity-40 hover:bg-white/[0.08] transition-colors"
+                                    className="secondary-action rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-40"
                                 >
                                     Sau ›
                                 </button>
@@ -561,9 +550,9 @@ function ExamsContent() {
 const ExamsPage = () => {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+            <div className="app-shell flex min-h-screen flex-col items-center justify-center">
                 <Spinner visible />
-                <p className="text-slate-500 text-sm mt-3">Đang tải trang...</p>
+                <p className="mt-3 text-sm" style={{ color: "var(--text-muted)" }}>Đang tải trang...</p>
             </div>
         }>
             <ExamsContent />

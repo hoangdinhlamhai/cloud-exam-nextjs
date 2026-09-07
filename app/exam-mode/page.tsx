@@ -6,17 +6,17 @@ import Spinner from "@/components/Spinner";
 import { examService, Exam } from "@/services/exam";
 
 /* ──────────── helpers ──────────── */
-const providerMeta: Record<string, { icon: string; gradient: string }> = {
-    AWS: { icon: "🔶", gradient: "from-orange-500 to-amber-400" },
-    Azure: { icon: "🔷", gradient: "from-blue-500 to-cyan-400" },
-    GCP: { icon: "🔴", gradient: "from-red-500 to-yellow-400" },
+const providerMeta: Record<string, { icon: string; surface: string }> = {
+    AWS: { icon: "🔶", surface: "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50" },
+    Azure: { icon: "🔷", surface: "border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/50" },
+    GCP: { icon: "🔴", surface: "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/50" },
 };
 
 const levelMeta: Record<string, { label: string; badge: string }> = {
-    Practitioner: { label: "Practitioner", badge: "border-green-500/30 bg-green-500/10 text-green-400" },
-    Associate: { label: "Associate", badge: "border-blue-500/30 bg-blue-500/10 text-blue-400" },
-    Professional: { label: "Professional", badge: "border-purple-500/30 bg-purple-500/10 text-purple-400" },
-    Expert: { label: "Expert", badge: "border-pink-500/30 bg-pink-500/10 text-pink-400" },
+    Practitioner: { label: "Practitioner", badge: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300" },
+    Associate: { label: "Associate", badge: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300" },
+    Professional: { label: "Professional", badge: "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-300" },
+    Expert: { label: "Expert", badge: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-300" },
 };
 
 /* ──────────── comparison data ──────────── */
@@ -110,21 +110,21 @@ function ExamModeContent() {
     /* ── guards ── */
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+            <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col items-center justify-center">
                 <Spinner visible />
-                <p className="text-slate-500 text-sm mt-4">Đang tải thông tin đề thi…</p>
+                <p className="text-[var(--text-muted)] text-sm mt-4">Đang tải thông tin đề thi…</p>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6 gap-4">
+            <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col items-center justify-center px-6 gap-4">
                 <span className="text-4xl">⚠️</span>
-                <p className="text-red-400 text-sm font-medium">{error}</p>
+                <p className="text-red-600 text-sm font-medium">{error}</p>
                 <button
                     onClick={() => router.back()}
-                    className="rounded-xl bg-slate-800 px-5 py-2.5 text-sm text-white hover:bg-slate-700 transition-colors"
+                    className="secondary-action rounded-lg px-5 py-2.5 text-sm"
                 >
                     Quay lại
                 </button>
@@ -134,12 +134,12 @@ function ExamModeContent() {
 
     if (!exam) {
         return (
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6 gap-4">
+            <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col items-center justify-center px-6 gap-4">
                 <span className="text-5xl">📝</span>
-                <p className="text-slate-400 text-base font-medium">Không tìm thấy đề thi</p>
+                <p className="text-[var(--text-secondary)] text-base font-medium">Không tìm thấy đề thi</p>
                 <button
                     onClick={() => router.back()}
-                    className="rounded-xl bg-slate-800 px-5 py-2.5 text-sm text-white hover:bg-slate-700 transition-colors"
+                    className="secondary-action rounded-lg px-5 py-2.5 text-sm"
                 >
                     Quay lại
                 </button>
@@ -154,34 +154,24 @@ function ExamModeContent() {
     const lvl = levelMeta[exam.course?.level] || levelMeta.Associate;
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white selection:bg-cyan-500/30">
-            {/* Background decorations */}
-            <div className="pointer-events-none fixed inset-0">
-                <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-[600px] w-[800px] rounded-full bg-gradient-to-b from-cyan-600/10 to-transparent blur-3xl" />
-                <div className="absolute bottom-20 -left-20 h-64 w-64 rounded-full bg-purple-500/8 blur-3xl" />
-                <div className="absolute bottom-40 right-0 h-48 w-48 rounded-full bg-orange-500/6 blur-3xl" />
-            </div>
-
+        <div className="app-shell min-h-screen text-[var(--text-primary)]">
             {/* ═══════ HEADER ═══════ */}
-            <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/20">
+            <header className="site-header sticky top-0 z-50 shadow-sm">
                 <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3 lg:px-8">
                     <button
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+                        className="inline-flex items-center gap-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
                     >
-                        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]">←</span>
-                        <span className="text-sm font-medium hidden sm:inline">Quay lại</span>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border-clr)] bg-[var(--surface)]">←</span>
+                        <span className="hidden text-sm font-medium sm:inline">Quay lại</span>
                     </button>
 
                     <div className="flex items-center gap-2.5">
-                        <div className="relative">
-                            <div className="absolute inset-0 rounded-xl bg-cyan-400 blur-md opacity-40" />
-                            <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg">
-                                <span className="text-base font-black text-white">C</span>
-                            </div>
+                        <div className="brand-mark flex h-9 w-9 items-center justify-center rounded-lg">
+                            <span className="text-base font-black">C</span>
                         </div>
-                        <span className="text-lg font-extrabold tracking-tight">
-                            Cloud<span className="text-cyan-400">Exam</span>
+                        <span className="wordmark text-lg font-extrabold tracking-tight">
+                            Cloud<span className="wordmark-accent">Exam</span>
                         </span>
                     </div>
 
@@ -193,34 +183,32 @@ function ExamModeContent() {
             <main className="relative z-10 mx-auto max-w-5xl px-5 lg:px-8 pt-10 pb-20">
                 {/* ── Exam info card ── */}
                 <div className="mb-10">
-                    <div className="flex flex-col sm:flex-row items-start gap-5 rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-md p-6 relative overflow-hidden">
-                        <div className={`pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br ${prov.gradient} opacity-10 blur-3xl`} />
-
-                        <div className={`flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${prov.gradient} opacity-90`}>
+                    <div className="surface-card flex flex-col items-start gap-5 rounded-xl p-6 sm:flex-row">
+                        <div className={`flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl border ${prov.surface}`}>
                             <span className="text-3xl">{prov.icon}</span>
                         </div>
 
-                        <div className="relative z-10 flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-semibold text-slate-400">{providerName}</span>
-                                <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${lvl.badge}`}>
+                        <div className="min-w-0 flex-1">
+                            <div className="mb-2 flex items-center gap-2">
+                                <span className="text-xs font-semibold text-[var(--text-muted)]">{providerName}</span>
+                                <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${lvl.badge}`}>
                                     {lvl.label}
                                 </span>
                             </div>
-                            <h1 className="text-xl sm:text-2xl font-extrabold text-white leading-snug mb-2">
+                            <h1 className="mb-2 text-xl font-extrabold leading-snug text-[var(--text-primary)] sm:text-2xl">
                                 {exam.title}
                             </h1>
                             {exam.description && (
-                                <p className="text-sm text-slate-400 leading-relaxed mb-3">{exam.description}</p>
+                                <p className="mb-3 text-sm leading-relaxed text-[var(--text-secondary)]">{exam.description}</p>
                             )}
-                            <div className="flex items-center gap-5 text-sm text-slate-400">
+                            <div className="flex items-center gap-5 text-sm text-[var(--text-muted)]">
                                 <div className="flex items-center gap-1.5">
                                     <span>🕐</span>
-                                    <span className="font-semibold text-slate-300">{exam.durationMinutes} phút</span>
+                                    <span className="font-semibold text-[var(--text-secondary)]">{exam.durationMinutes} phút</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <span>📋</span>
-                                    <span className="font-semibold text-slate-300">{exam._count?.questions ?? exam.totalQuestions} câu hỏi</span>
+                                    <span className="font-semibold text-[var(--text-secondary)]">{exam._count?.questions ?? exam.totalQuestions} câu hỏi</span>
                                 </div>
                             </div>
                         </div>
@@ -228,10 +216,10 @@ function ExamModeContent() {
                 </div>
 
                 {/* ── Section title ── */}
-                <div className="text-center mb-8">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400 mb-2">Chọn chế độ</p>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold">
-                        Bạn muốn <span className="text-cyan-400">luyện tập</span> hay <span className="text-amber-400">thi thử</span>?
+                <div className="mb-8 text-center">
+                    <p className="app-eyebrow mb-2 text-xs font-semibold uppercase tracking-[0.18em]">Chọn chế độ</p>
+                    <h2 className="text-2xl font-extrabold text-[var(--text-primary)] sm:text-3xl">
+                        Bạn muốn luyện tập hay thi thử?
                     </h2>
                 </div>
 
@@ -240,38 +228,35 @@ function ExamModeContent() {
                     {/* Practice mode */}
                     <button
                         onClick={() => setSelectedMode("practice")}
-                        className={`group relative text-left overflow-hidden rounded-2xl border-2 p-6 transition-all duration-300 hover:-translate-y-1 ${selectedMode === "practice"
-                            ? "border-cyan-500/60 bg-cyan-500/10 shadow-lg shadow-cyan-500/10"
-                            : "border-white/[0.08] bg-white/[0.03] hover:border-white/[0.15] hover:bg-white/[0.05]"
+                        className={`relative overflow-hidden rounded-xl border-2 p-6 text-left transition-colors ${selectedMode === "practice"
+                            ? "border-blue-500 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/50"
+                            : "border-[var(--border-clr)] bg-[var(--surface)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-hover)]"
                             }`}
                     >
-                        {/* Background glow */}
-                        <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 blur-3xl transition-opacity group-hover:opacity-15" />
-
                         {/* Selected indicator */}
                         {selectedMode === "practice" && (
-                            <div className="absolute top-4 right-4 flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500 text-white text-sm font-bold shadow-lg shadow-cyan-500/30">
+                            <div className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
                                 ✓
                             </div>
                         )}
 
-                        <div className="relative z-10">
+                        <div>
                             {/* Icon */}
-                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 mb-5">
+                            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/50">
                                 <span className="text-3xl">📖</span>
                             </div>
 
-                            <h3 className="text-xl font-bold text-white mb-2">Chế độ Luyện tập</h3>
-                            <p className="text-sm text-slate-400 leading-relaxed mb-5">
+                            <h3 className="mb-2 text-xl font-bold text-[var(--text-primary)]">Chế độ Luyện tập</h3>
+                            <p className="mb-5 text-sm leading-relaxed text-[var(--text-secondary)]">
                                 Thoải mái ôn tập, không giới hạn thời gian. Xem đáp án và giải thích ngay sau mỗi câu hỏi.
                             </p>
 
                             {/* Key features */}
                             <div className="space-y-2.5">
                                 {[
-                                    { icon: "∞", text: "Không giới hạn thời gian", color: "text-cyan-400" },
-                                    { icon: "✅", text: "Xem đáp án ngay lập tức", color: "text-green-400" },
-                                    { icon: "💡", text: "Giải thích chi tiết mỗi câu", color: "text-amber-400" },
+                                    { icon: "∞", text: "Không giới hạn thời gian", color: "text-blue-700 dark:text-blue-300" },
+                                    { icon: "✅", text: "Xem đáp án ngay lập tức", color: "text-green-700 dark:text-green-300" },
+                                    { icon: "💡", text: "Giải thích chi tiết mỗi câu", color: "text-amber-700 dark:text-amber-300" },
                                 ].map((f, i) => (
                                     <div key={i} className="flex items-center gap-2.5">
                                         <span className="text-sm">{f.icon}</span>
@@ -285,38 +270,35 @@ function ExamModeContent() {
                     {/* Test mode */}
                     <button
                         onClick={() => setSelectedMode("test")}
-                        className={`group relative text-left overflow-hidden rounded-2xl border-2 p-6 transition-all duration-300 hover:-translate-y-1 ${selectedMode === "test"
-                            ? "border-amber-500/60 bg-amber-500/10 shadow-lg shadow-amber-500/10"
-                            : "border-white/[0.08] bg-white/[0.03] hover:border-white/[0.15] hover:bg-white/[0.05]"
+                        className={`relative overflow-hidden rounded-xl border-2 p-6 text-left transition-colors ${selectedMode === "test"
+                            ? "border-blue-500 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/50"
+                            : "border-[var(--border-clr)] bg-[var(--surface)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-hover)]"
                             }`}
                     >
-                        {/* Background glow */}
-                        <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 opacity-0 blur-3xl transition-opacity group-hover:opacity-15" />
-
                         {/* Selected indicator */}
                         {selectedMode === "test" && (
-                            <div className="absolute top-4 right-4 flex h-7 w-7 items-center justify-center rounded-full bg-amber-500 text-white text-sm font-bold shadow-lg shadow-amber-500/30">
+                            <div className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
                                 ✓
                             </div>
                         )}
 
-                        <div className="relative z-10">
+                        <div>
                             {/* Icon */}
-                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20 mb-5">
+                            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
                                 <span className="text-3xl">🏆</span>
                             </div>
 
-                            <h3 className="text-xl font-bold text-white mb-2">Chế độ Thi thử</h3>
-                            <p className="text-sm text-slate-400 leading-relaxed mb-5">
+                            <h3 className="mb-2 text-xl font-bold text-[var(--text-primary)]">Chế độ Thi thử</h3>
+                            <p className="mb-5 text-sm leading-relaxed text-[var(--text-secondary)]">
                                 Mô phỏng kì thi thật với bộ đếm thời gian. Chỉ xem kết quả sau khi nộp bài hoặc hết giờ.
                             </p>
 
                             {/* Key features */}
                             <div className="space-y-2.5">
                                 {[
-                                    { icon: "⏱️", text: `Đếm ngược ${exam.durationMinutes} phút`, color: "text-amber-400" },
-                                    { icon: "🔒", text: "Đáp án ẩn cho đến khi nộp", color: "text-orange-400" },
-                                    { icon: "🎯", text: "Mô phỏng áp lực thi thật", color: "text-red-400" },
+                                    { icon: "⏱️", text: `Đếm ngược ${exam.durationMinutes} phút`, color: "text-amber-700 dark:text-amber-300" },
+                                    { icon: "🔒", text: "Đáp án ẩn cho đến khi nộp", color: "text-slate-700 dark:text-slate-300" },
+                                    { icon: "🎯", text: "Mô phỏng áp lực thi thật", color: "text-red-700 dark:text-red-300" },
                                 ].map((f, i) => (
                                     <div key={i} className="flex items-center gap-2.5">
                                         <span className="text-sm">{f.icon}</span>
@@ -329,37 +311,37 @@ function ExamModeContent() {
                 </div>
 
                 {/* ── Comparison table ── */}
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm overflow-hidden mb-10">
-                    <div className="px-6 py-4 border-b border-white/[0.06]">
-                        <h3 className="text-base font-bold text-white flex items-center gap-2">
-                            <span className="text-cyan-400">📊</span>
+                <div className="surface-card mb-10 overflow-hidden rounded-xl">
+                    <div className="border-b border-[var(--border-clr)] px-6 py-4">
+                        <h3 className="flex items-center gap-2 text-base font-bold text-[var(--text-primary)]">
+                            <span className="text-blue-600">📊</span>
                             So sánh chi tiết hai chế độ
                         </h3>
                     </div>
 
                     {/* Table header */}
-                    <div className="grid grid-cols-3 gap-4 px-6 py-3 border-b border-white/[0.06] bg-white/[0.02]">
-                        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tính năng</div>
-                        <div className="text-xs font-semibold text-cyan-400 uppercase tracking-wider text-center">📖 Luyện tập</div>
-                        <div className="text-xs font-semibold text-amber-400 uppercase tracking-wider text-center">🏆 Thi thử</div>
+                    <div className="grid grid-cols-3 gap-4 border-b border-[var(--border-clr)] bg-slate-50 px-6 py-3 dark:bg-slate-800">
+                        <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">Tính năng</div>
+                        <div className="text-center text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">📖 Luyện tập</div>
+                        <div className="text-center text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">🏆 Thi thử</div>
                     </div>
 
                     {/* Rows */}
                     {comparisonRows.map((row, idx) => (
                         <div
                             key={idx}
-                            className={`grid grid-cols-3 gap-4 px-6 py-3.5 border-b border-white/[0.04] last:border-b-0 ${idx % 2 === 0 ? "bg-transparent" : "bg-white/[0.01]"
-                                } hover:bg-white/[0.03] transition-colors`}
+                            className={`grid grid-cols-3 gap-4 border-b border-[var(--border-clr)] px-6 py-3.5 last:border-b-0 ${idx % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50/70 dark:bg-slate-800/70"
+                                } transition-colors hover:bg-slate-50 dark:hover:bg-slate-800`}
                         >
-                            <div className="text-sm font-medium text-slate-300">{row.feature}</div>
+                            <div className="text-sm font-medium text-slate-700 dark:text-slate-100">{row.feature}</div>
                             <div className="text-center">
-                                <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
+                                <span className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
                                     <span>{row.practiceIcon}</span>
                                     <span>{row.practice}</span>
                                 </span>
                             </div>
                             <div className="text-center">
-                                <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
+                                <span className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
                                     <span>{row.testIcon}</span>
                                     <span>{row.test}</span>
                                 </span>
@@ -373,11 +355,9 @@ function ExamModeContent() {
                     <button
                         onClick={handleStart}
                         disabled={!selectedMode}
-                        className={`w-full max-w-md h-14 rounded-2xl text-base font-bold transition-all duration-300 ${selectedMode === "practice"
-                            ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-600/25 hover:shadow-xl hover:shadow-cyan-600/30 hover:opacity-95"
-                            : selectedMode === "test"
-                                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-600/25 hover:shadow-xl hover:shadow-amber-600/30 hover:opacity-95"
-                                : "bg-slate-800 text-slate-500 cursor-not-allowed"
+                        className={`h-14 w-full max-w-md rounded-lg text-base font-bold transition-colors ${selectedMode
+                            ? "primary-action"
+                            : "cursor-not-allowed border border-slate-200 bg-slate-200 text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
                             }`}
                     >
                         {!selectedMode
@@ -388,7 +368,7 @@ function ExamModeContent() {
                     </button>
 
                     {selectedMode && (
-                        <p className="text-xs text-slate-500 animate-in fade-in duration-300">
+                        <p className="text-xs text-[var(--text-muted)] animate-in fade-in duration-300">
                             {selectedMode === "practice"
                                 ? "Bạn có thể xem đáp án ngay sau mỗi câu hỏi"
                                 : `Bộ đếm thời gian ${exam.durationMinutes} phút sẽ bắt đầu ngay khi vào trang thi`}
@@ -404,9 +384,9 @@ function ExamModeContent() {
 const ExamModePage = () => {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+            <div className="min-h-screen bg-[var(--background)] flex flex-col items-center justify-center">
                 <Spinner visible />
-                <p className="text-slate-500 text-sm mt-4">Đang tải…</p>
+                <p className="text-[var(--text-muted)] text-sm mt-4">Đang tải…</p>
             </div>
         }>
             <ExamModeContent />

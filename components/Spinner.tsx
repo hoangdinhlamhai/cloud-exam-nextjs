@@ -19,7 +19,7 @@ const Spinner: React.FC<SpinnerProps> = ({ visible = true, size = "md", classNam
 
     return (
         <div
-            className={`${sizeClasses[size]} border-cyan-400 border-t-transparent rounded-full animate-spin ${className}`}
+            className={`${sizeClasses[size]} border-blue-600 border-t-transparent rounded-full animate-spin ${className}`}
         />
     );
 };

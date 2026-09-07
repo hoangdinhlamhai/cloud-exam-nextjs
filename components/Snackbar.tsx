@@ -59,14 +59,14 @@ export const SnackbarProvider: React.FC<SnackbarProviderProps> = ({ children }) 
     const getTypeStyles = (type: SnackbarMessage["type"]) => {
         switch (type) {
             case "success":
-                return "bg-green-500/90 border-green-400";
+                return "bg-emerald-600 border-emerald-700";
             case "error":
-                return "bg-red-500/90 border-red-400";
+                return "bg-red-600 border-red-700";
             case "warning":
-                return "bg-yellow-500/90 border-yellow-400";
+                return "bg-amber-500 border-amber-600";
             case "info":
             default:
-                return "bg-blue-500/90 border-blue-400";
+                return "bg-blue-600 border-blue-700";
         }
     };
 
@@ -87,13 +87,13 @@ export const SnackbarProvider: React.FC<SnackbarProviderProps> = ({ children }) 
     return (
         <SnackbarContext.Provider value={{ openSnackbar }}>
             {children}
-            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2">
+            <div className="fixed bottom-4 left-1/2 z-[100] flex min-w-[280px] -translate-x-1/2 flex-col gap-2 px-4 sm:px-0">
                 {messages.map((message) => (
                     <div
                         key={message.id}
                         className={`${getTypeStyles(
                             message.type
-                        )} text-white px-4 py-3 rounded-xl shadow-lg border backdrop-blur-sm flex items-center gap-3 animate-slide-up min-w-[280px]`}
+                        )} flex items-center gap-3 rounded-lg border px-4 py-3 text-white shadow-sm animate-slide-up`}
                     >
                         <span className="text-lg">{getIcon(message.type)}</span>
                         <span className="text-sm font-medium">{message.text}</span>
@@ -112,7 +112,7 @@ export const SnackbarProvider: React.FC<SnackbarProviderProps> = ({ children }) 
                     }
                 }
                 .animate-slide-up {
-                    animation: slide-up 0.3s ease-out;
+                    animation: slide-up 0.2s ease-out;
                 }
             `}</style>
         </SnackbarContext.Provider>

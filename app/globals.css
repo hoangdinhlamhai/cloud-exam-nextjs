@@ -1,30 +1,51 @@
 @import "tailwindcss";
 
-/* ═══ Dark theme (default) ═══ */
-:root,
-[data-theme="dark"] {
-  --background: #0f172a;
-  --foreground: #f8fafc;
-  --surface: #1e293b;
-  --surface-hover: #334155;
-  --border-clr: rgba(255, 255, 255, 0.06);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --card-bg: rgba(15, 23, 42, 0.6);
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  color-scheme: light;
+  --background: #f3f1ed;
+  --foreground: #1f2933;
+  --surface: #fffdfa;
+  --section-bg: #ebe8e2;
+  --surface-hover: #eeeae4;
+  --border-clr: #d8d3cb;
+  --border-strong: #c6beb4;
+  --text-primary: #1f2933;
+  --text-secondary: #53606b;
+  --text-muted: #71808b;
+  --card-bg: #fffdfa;
+  --input-bg: #fffdfa;
+  --header-bg: #fffdfa;
+  --primary: #255bb5;
+  --primary-hover: #1d4d99;
+  --primary-soft: #e9eff9;
+  --primary-soft-border: #bfd0eb;
+  --focus-ring: rgba(37, 91, 181, 0.24);
+  --card-shadow: 0 1px 2px 0 rgba(54, 48, 40, 0.06), 0 8px 24px rgba(54, 48, 40, 0.05);
 }
 
-/* ═══ Light theme ═══ */
-[data-theme="light"] {
-  --background: #f1f5f9;
-  --foreground: #0f172a;
-  --surface: #ffffff;
-  --surface-hover: #f1f5f9;
-  --border-clr: rgba(0, 0, 0, 0.1);
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
+[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --surface: #111827;
+  --section-bg: #182235;
+  --surface-hover: #1e293b;
+  --border-clr: #334155;
+  --border-strong: #475569;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
-  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-bg: #111827;
+  --input-bg: #0f172a;
+  --header-bg: #111827;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-soft: #172554;
+  --primary-soft-border: #1d4ed8;
+  --focus-ring: rgba(96, 165, 250, 0.24);
+  --card-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.22), 0 8px 24px rgba(0, 0, 0, 0.16);
 }
 
 @theme inline {
@@ -34,95 +55,184 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  background: var(--background);
+}
+
 body {
+  min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-main), 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: var(--font-main), "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* ═══ Light mode: global overrides ═══ */
-/* These use [data-theme] which is set by ThemeProvider via setAttribute */
+::selection {
+  background: var(--primary-soft-border);
+  color: var(--text-primary);
+}
 
-[data-theme="light"] body {
+.app-shell {
+  min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
 }
 
-/* Dark backgrounds → light */
-[data-theme="light"] [class*="bg-slate-950"] {
-  background-color: #f1f5f9 !important;
+.site-header {
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-clr);
+  color: var(--text-primary);
 }
 
-[data-theme="light"] [class*="bg-slate-900"] {
-  background-color: #ffffff !important;
+.surface-card {
+  background: var(--surface);
+  border: 1px solid var(--border-clr);
+  box-shadow: var(--card-shadow);
 }
 
-[data-theme="light"] [class*="bg-slate-800"] {
-  background-color: #f8fafc !important;
+.surface-subtle {
+  background: var(--surface-hover);
 }
 
-/* Text colors → dark (skip elements inside gradient containers) */
-[data-theme="light"] [class*="text-white"]:not([class*="bg-gradient"] *):not([class*="from-"] *) {
-  color: #0f172a !important;
+.section-muted {
+  background: var(--section-bg);
 }
 
-/* Keep white text ON gradient backgrounds */
-[data-theme="light"] [class*="bg-gradient"] [class*="text-white"],
-[data-theme="light"] [class*="bg-gradient"] [class*="text-white\\/"],
-[data-theme="light"] [class*="from-"] [class*="text-white"],
-[data-theme="light"] [class*="from-"] [class*="text-white\\/"] {
-  color: #ffffff !important;
+.wordmark {
+  color: var(--text-primary);
 }
 
-[data-theme="light"] [class*="text-slate-300"] {
-  color: #1e293b !important;
+.wordmark-accent,
+.app-eyebrow,
+.app-link {
+  color: var(--primary);
 }
 
-[data-theme="light"] [class*="text-slate-400"] {
-  color: #334155 !important;
+.brand-mark {
+  background: var(--primary);
+  color: #ffffff;
 }
 
-[data-theme="light"] [class*="text-slate-500"] {
-  color: #475569 !important;
+.primary-action {
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  color: #ffffff;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-[data-theme="light"] [class*="text-slate-600"] {
-  color: #64748b !important;
+.primary-action:hover:not(:disabled) {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 
-/* Hover bg on light mode (white/[0.04] is invisible on white bg) */
-[data-theme="light"] [class*="hover\\:bg-white"]:hover {
-  background-color: rgba(0, 0, 0, 0.05) !important;
+.primary-action:focus-visible,
+.secondary-action:focus-visible,
+.theme-button:focus-visible,
+.icon-button:focus-visible,
+.nav-link:focus-visible,
+.form-input:focus-visible,
+.auth-link:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
-/* Borders & dividers → dark */
-[data-theme="light"] [class*="border-white"] {
-  border-color: rgba(0, 0, 0, 0.1) !important;
+.primary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
-[data-theme="light"] [class*="divide-white"]>*+* {
-  border-color: rgba(0, 0, 0, 0.08) !important;
+.secondary-action {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-/* Special elements */
-[data-theme="light"] [class*="bg-gradient-to-b"][class*="from-slate"] {
-  background-image: none !important;
-  background-color: #f1f5f9 !important;
+.secondary-action:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-clr);
 }
 
-/* Shadows */
-[data-theme="light"] [class*="shadow-black"] {
-  --tw-shadow-color: rgba(0, 0, 0, 0.05) !important;
+.theme-button,
+.icon-button {
+  background: var(--surface-hover);
+  border: 1px solid var(--border-clr);
+  color: var(--text-secondary);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-[data-theme="light"] [class*="shadow-cyan"] {
-  --tw-shadow-color: rgba(6, 182, 212, 0.1) !important;
+.theme-button:hover,
+.icon-button:hover {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
 }
 
-/* Backdrop blur in light */
-[data-theme="light"] [class*="backdrop-blur"] {
-  background-color: rgba(255, 255, 255, 0.85) !important;
+.nav-link {
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-link:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-clr);
+  color: var(--text-primary);
+}
+
+.mobile-nav {
+  background: var(--header-bg);
+  border-top: 1px solid var(--border-clr);
+}
+
+.form-label {
+  color: var(--text-secondary);
+}
+
+.form-input {
+  background: var(--input-bg);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  outline: none;
+}
+
+.auth-link {
+  color: var(--primary);
+  transition: color 0.2s ease;
+}
+
+.auth-link:hover {
+  color: var(--primary-hover);
+}
+
+.checkbox-control {
+  background: var(--input-bg);
+  border: 1px solid var(--border-strong);
+}
+
+.status-badge {
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-soft-border);
+  color: var(--primary);
+}
+
+.footer-link {
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: var(--text-primary);
 }
 
 /* Custom scrollbar hiding */
@@ -147,7 +257,6 @@ body {
 
 /* Animations */
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;

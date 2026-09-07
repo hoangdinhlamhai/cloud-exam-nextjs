@@ -200,23 +200,20 @@ export default function ProfilePage() {
 
     /* ──────────── RENDER ──────────── */
     return (
-        <div className="min-h-screen bg-slate-950 text-white selection:bg-cyan-500/30">
+        <div className="app-shell">
             {/* ═══ HEADER ═══ */}
-            <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/20">
+            <header className="site-header sticky top-0 z-50">
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 lg:px-8">
-                    <button onClick={() => router.push("/home")} className="flex items-center gap-2.5 group">
-                        <div className="relative">
-                            <div className="absolute inset-0 rounded-xl bg-cyan-400 blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
-                            <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg">
-                                <span className="text-base font-black text-white">C</span>
-                            </div>
+                    <button onClick={() => router.push("/home")} className="flex items-center gap-2.5 rounded-lg px-1 py-1">
+                        <div className="brand-mark flex h-9 w-9 items-center justify-center rounded-lg">
+                            <span className="text-base font-black">C</span>
                         </div>
-                        <span className="text-lg font-extrabold tracking-tight">
-                            Cloud<span className="text-cyan-400">Exam</span>
+                        <span className="wordmark text-lg font-extrabold tracking-tight">
+                            Cloud<span className="wordmark-accent">Exam</span>
                         </span>
                     </button>
 
-                    <nav className="hidden md:flex items-center gap-1">
+                    <nav className="hidden items-center gap-1 md:flex">
                         {[
                             { label: "Trang chủ", route: "/home" },
                             { label: "Khoá học", route: "/courses" },
@@ -226,7 +223,7 @@ export default function ProfilePage() {
                             <button
                                 key={l.route}
                                 onClick={() => router.push(l.route)}
-                                className="px-4 py-2 text-[13px] font-medium rounded-lg text-slate-300 hover:text-white hover:bg-white/[0.06] transition-colors"
+                                className="nav-link rounded-lg px-4 py-2 text-[13px] font-medium"
                             >
                                 {l.label}
                             </button>
@@ -235,62 +232,57 @@ export default function ProfilePage() {
 
                     <button
                         onClick={() => router.back()}
-                        className="flex md:hidden h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-300 hover:bg-white/[0.06]"
+                        className="icon-button flex h-9 w-9 items-center justify-center rounded-lg md:hidden"
+                        aria-label="Quay lại"
                     >
                         ←
                     </button>
                 </div>
             </header>
 
-            {/* ═══ HERO ═══ */}
-            <section className="relative overflow-hidden border-b border-white/[0.06] bg-gradient-to-b from-slate-900/50 to-slate-950">
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -top-20 left-1/2 -translate-x-1/2 h-[400px] w-[700px] rounded-full bg-gradient-to-b from-cyan-600/15 to-transparent blur-3xl" />
-                </div>
-
-                <div className="relative z-10 mx-auto max-w-7xl px-5 lg:px-8 pt-12 pb-10">
-                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+            {/* ═══ PROFILE SUMMARY ═══ */}
+            <section className="border-b border-[var(--border-clr)]">
+                <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
+                    <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
                         {/* Avatar */}
-                        <div className="relative group">
-                            <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 opacity-50 blur-sm group-hover:opacity-80 transition-opacity" />
+                        <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[var(--border-strong)] bg-[var(--surface-hover)]">
                             {avatarPreview ? (
                                 <img
                                     src={avatarPreview}
                                     alt={fullName}
-                                    className="relative h-24 w-24 rounded-full object-cover border-2 border-slate-950"
+                                    className="h-full w-full object-cover"
                                 />
                             ) : (
-                                <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-slate-950">
-                                    <span className="text-2xl font-black text-white">{initials}</span>
-                                </div>
+                                <span className="text-2xl font-bold text-[var(--text-secondary)]">{initials}</span>
                             )}
                         </div>
 
                         {/* Info */}
                         <div className="text-center sm:text-left">
-                            <h1 className="text-2xl font-extrabold sm:text-3xl">{fullName || "Chưa đặt tên"}</h1>
-                            <p className="mt-1 text-sm text-slate-400">{profile?.email}</p>
-                            <p className="mt-2 text-xs text-slate-500">
+                            <p className="app-eyebrow text-sm font-semibold">Hồ sơ học viên</p>
+                            <h1 className="mt-1 text-2xl font-bold tracking-tight text-[var(--text-primary)] sm:text-3xl">{fullName || "Chưa đặt tên"}</h1>
+                            <p className="mt-1 text-sm text-[var(--text-secondary)]">{profile?.email}</p>
+                            <p className="mt-2 text-xs text-[var(--text-muted)]">
                                 Thành viên từ {memberSince}
                             </p>
                         </div>
                     </div>
 
                     {/* Stats Grid */}
-                    <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
                         {[
-                            { label: "Đề thi đã làm", value: stats?.totalExamsTaken ?? "—", icon: "📝", color: "from-cyan-500/15 to-blue-500/15 border-cyan-500/20" },
-                            { label: "Điểm trung bình", value: stats ? `${stats.averageScore}%` : "—", icon: "📊", color: "from-green-500/15 to-emerald-500/15 border-green-500/20" },
-                            { label: "Câu hỏi đã trả lời", value: stats?.totalQuestions?.toLocaleString() ?? "—", icon: "💡", color: "from-purple-500/15 to-pink-500/15 border-purple-500/20" },
-                            { label: "Ghi chú", value: stats?.totalNotes ?? "—", icon: "📌", color: "from-amber-500/15 to-orange-500/15 border-amber-500/20" },
+                            { label: "Đề thi đã làm", value: stats?.totalExamsTaken ?? "—", icon: "📝" },
+                            { label: "Điểm trung bình", value: stats ? `${stats.averageScore}%` : "—", icon: "📊" },
+                            { label: "Câu hỏi đã trả lời", value: stats?.totalQuestions?.toLocaleString() ?? "—", icon: "💡" },
+                            { label: "Ghi chú", value: stats?.totalNotes ?? "—", icon: "📌" },
                         ].map((stat) => (
                             <div
                                 key={stat.label}
-                                className={`rounded-2xl border bg-gradient-to-br p-5 ${stat.color}`}
+                                className="surface-card rounded-lg p-4"
                             >
-                                <span className="text-xl">{stat.icon}</span>
-                                <p className="mt-2 text-2xl font-extrabold text-white">{stat.value}</p>
-                                <p className="text-sm text-slate-400 mt-1">{stat.label}</p>
+                                <span className="text-lg" aria-hidden="true">{stat.icon}</span>
+                                <p className="mt-2 text-2xl font-bold tabular-nums text-[var(--text-primary)]">{stat.value}</p>
+                                <p className="mt-1 text-sm text-[var(--text-muted)]">{stat.label}</p>
                             </div>
                         ))}
                     </div>
@@ -298,9 +290,9 @@ export default function ProfilePage() {
             </section>
 
             {/* ═══ MAIN CONTENT ═══ */}
-            <main className="mx-auto max-w-7xl px-5 lg:px-8 py-10">
+            <main className="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
                 {/* Tab Switcher */}
-                <div className="flex gap-1 p-1 rounded-xl bg-slate-900/60 border border-white/[0.06] mb-8 max-w-sm">
+                <div className="mb-8 flex max-w-sm gap-1 rounded-lg border border-[var(--border-clr)] bg-[var(--surface-hover)] p-1">
                     {([
                         { key: "info" as const, label: "Hồ sơ", icon: "👤" },
                         { key: "password" as const, label: "Mật khẩu", icon: "🔒" },
@@ -308,12 +300,12 @@ export default function ProfilePage() {
                         <button
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
-                            className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${activeTab === tab.key
-                                ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-sm"
-                                : "text-slate-400 hover:text-slate-200"
+                            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${activeTab === tab.key
+                                ? "border border-[var(--primary-soft-border)] bg-[var(--surface)] text-[var(--primary)] shadow-sm"
+                                : "text-[var(--text-secondary)] hover:bg-[var(--surface)] hover:text-[var(--text-primary)]"
                                 }`}
                         >
-                            <span className="text-sm">{tab.icon}</span>
+                            <span className="text-sm" aria-hidden="true">{tab.icon}</span>
                             {tab.label}
                         </button>
                     ))}
@@ -321,11 +313,11 @@ export default function ProfilePage() {
 
                 {/* ── Tab: Profile Info ── */}
                 {activeTab === "info" && (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* LEFT — Avatar Upload Card */}
                         <div className="lg:col-span-1">
-                            <div className="rounded-2xl border border-white/[0.06] bg-slate-900/60 p-6 sm:p-8">
-                                <h2 className="text-base font-bold text-white mb-6">Ảnh đại diện</h2>
+                            <div className="surface-card rounded-xl p-6 sm:p-8">
+                                <h2 className="mb-6 text-base font-bold text-[var(--text-primary)]">Ảnh đại diện</h2>
 
                                 {/* Hidden file input */}
                                 <input
@@ -338,39 +330,36 @@ export default function ProfilePage() {
 
                                 {/* Preview */}
                                 <div className="flex flex-col items-center gap-5">
-                                    <div className="relative">
-                                        <div className="absolute -inset-1.5 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 opacity-30 blur-sm" />
+                                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-2 border-[var(--border-strong)] bg-[var(--surface-hover)]">
                                         {avatarPreview ? (
                                             <img
                                                 src={avatarPreview}
                                                 alt={fullName}
-                                                className="relative h-32 w-32 rounded-full object-cover border-3 border-slate-950"
+                                                className="h-full w-full object-cover"
                                             />
                                         ) : (
-                                            <div className="relative flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-slate-700 border-3 border-slate-950">
-                                                <span className="text-3xl font-black text-slate-500">{initials}</span>
-                                            </div>
+                                            <span className="text-3xl font-bold text-[var(--text-secondary)]">{initials}</span>
                                         )}
                                     </div>
 
                                     {/* File info */}
                                     {avatarFile && (
                                         <div className="text-center">
-                                            <p className="text-xs text-slate-400 truncate max-w-[200px]">{avatarFile.name}</p>
-                                            <p className="text-[11px] text-slate-600">{(avatarFile.size / 1024).toFixed(0)} KB</p>
+                                            <p className="max-w-[200px] truncate text-xs text-[var(--text-secondary)]">{avatarFile.name}</p>
+                                            <p className="text-[11px] text-[var(--text-muted)]">{(avatarFile.size / 1024).toFixed(0)} KB</p>
                                         </div>
                                     )}
 
                                     {/* Buttons */}
-                                    <div className="flex flex-col gap-2 w-full">
+                                    <div className="flex w-full flex-col gap-2">
                                         <button
                                             onClick={() => fileInputRef.current?.click()}
                                             disabled={isUploading}
-                                            className="w-full rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2.5 text-sm font-semibold text-cyan-400 hover:bg-cyan-500/20 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                            className="secondary-action flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
                                         >
                                             {isUploading ? (
                                                 <>
-                                                    <div className="h-4 w-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
                                                     Đang tải lên…
                                                 </>
                                             ) : (
@@ -380,14 +369,15 @@ export default function ProfilePage() {
                                         {avatarPreview && (
                                             <button
                                                 onClick={handleRemoveAvatar}
-                                                className="w-full rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-500/15 transition-colors"
+                                                className="w-full rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-red-500/15"
+                                                style={{ color: "light-dark(#b91c1c, #fca5a5)" }}
                                             >
                                                 Xóa ảnh
                                             </button>
                                         )}
                                     </div>
 
-                                    <p className="text-[11px] text-slate-600 text-center leading-relaxed">
+                                    <p className="text-center text-[11px] leading-relaxed text-[var(--text-muted)]">
                                         JPG, PNG hoặc WebP<br />Tối đa 5MB
                                     </p>
                                 </div>
@@ -396,36 +386,36 @@ export default function ProfilePage() {
 
                         {/* RIGHT — Profile Fields */}
                         <div className="lg:col-span-2">
-                            <div className="rounded-2xl border border-white/[0.06] bg-slate-900/60 p-6 sm:p-8">
-                                <h2 className="text-base font-bold text-white mb-6">Thông tin cá nhân</h2>
+                            <div className="surface-card rounded-xl p-6 sm:p-8">
+                                <h2 className="mb-6 text-base font-bold text-[var(--text-primary)]">Thông tin cá nhân</h2>
 
                                 <div className="space-y-5">
                                     {/* Email (read-only) */}
                                     <div>
-                                        <label className="block text-xs font-semibold text-slate-400 mb-2">Email</label>
-                                        <div className="rounded-xl border border-white/[0.06] bg-slate-950/60 px-4 py-3 text-sm text-slate-500 cursor-not-allowed">
+                                        <label className="form-label mb-2 block text-xs font-semibold">Email</label>
+                                        <div className="surface-subtle cursor-not-allowed rounded-lg border border-[var(--border-clr)] px-4 py-3 text-sm text-[var(--text-muted)]">
                                             {profile?.email || "—"}
                                         </div>
-                                        <p className="text-xs text-slate-600 mt-1.5">Email không thể thay đổi</p>
+                                        <p className="mt-1.5 text-xs text-[var(--text-muted)]">Email không thể thay đổi</p>
                                     </div>
 
                                     {/* Full Name */}
                                     <div>
-                                        <label className="block text-xs font-semibold text-slate-400 mb-2">Họ và tên</label>
+                                        <label className="form-label mb-2 block text-xs font-semibold">Họ và tên</label>
                                         <input
                                             type="text"
                                             value={fullName}
                                             onChange={(e) => setFullName(e.target.value)}
                                             maxLength={100}
                                             placeholder="Nhập họ và tên…"
-                                            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition-colors"
+                                            className="form-input w-full rounded-lg px-4 py-3 text-sm"
                                         />
                                     </div>
 
                                     {/* Member since (read-only) */}
                                     <div>
-                                        <label className="block text-xs font-semibold text-slate-400 mb-2">Ngày tham gia</label>
-                                        <div className="rounded-xl border border-white/[0.06] bg-slate-950/60 px-4 py-3 text-sm text-slate-500 cursor-not-allowed">
+                                        <label className="form-label mb-2 block text-xs font-semibold">Ngày tham gia</label>
+                                        <div className="surface-subtle cursor-not-allowed rounded-lg border border-[var(--border-clr)] px-4 py-3 text-sm text-[var(--text-muted)]">
                                             {memberSince}
                                         </div>
                                     </div>
@@ -436,11 +426,11 @@ export default function ProfilePage() {
                                     <button
                                         onClick={handleSaveProfile}
                                         disabled={isSaving}
-                                        className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-600/20 hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+                                        className="primary-action flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold"
                                     >
                                         {isSaving ? (
                                             <>
-                                                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                                                 Đang lưu…
                                             </>
                                         ) : (
@@ -455,54 +445,54 @@ export default function ProfilePage() {
 
                 {/* ── Tab: Change Password ── */}
                 {activeTab === "password" && (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* LEFT — Password Form */}
                         <div className="lg:col-span-2">
-                            <div className="rounded-2xl border border-white/[0.06] bg-slate-900/60 p-6 sm:p-8">
-                                <h2 className="text-base font-bold text-white mb-2">Đổi mật khẩu</h2>
-                                <p className="text-sm text-slate-500 mb-6">Mật khẩu mới phải có ít nhất 6 ký tự</p>
+                            <div className="surface-card rounded-xl p-6 sm:p-8">
+                                <h2 className="mb-2 text-base font-bold text-[var(--text-primary)]">Đổi mật khẩu</h2>
+                                <p className="mb-6 text-sm text-[var(--text-muted)]">Mật khẩu mới phải có ít nhất 6 ký tự</p>
 
                                 <div className="space-y-5">
                                     {/* Current Password */}
                                     <div>
-                                        <label className="block text-xs font-semibold text-slate-400 mb-2">Mật khẩu hiện tại</label>
+                                        <label className="form-label mb-2 block text-xs font-semibold">Mật khẩu hiện tại</label>
                                         <input
                                             type="password"
                                             value={currentPassword}
                                             onChange={(e) => setCurrentPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition-colors"
+                                            className="form-input w-full rounded-lg px-4 py-3 text-sm"
                                         />
                                     </div>
 
                                     {/* New Password */}
                                     <div>
-                                        <label className="block text-xs font-semibold text-slate-400 mb-2">Mật khẩu mới</label>
+                                        <label className="form-label mb-2 block text-xs font-semibold">Mật khẩu mới</label>
                                         <input
                                             type="password"
                                             value={newPassword}
                                             onChange={(e) => setNewPassword(e.target.value)}
                                             placeholder="Tối thiểu 6 ký tự"
                                             minLength={6}
-                                            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition-colors"
+                                            className="form-input w-full rounded-lg px-4 py-3 text-sm"
                                         />
                                         {newPassword && newPassword.length < 6 && (
-                                            <p className="text-xs text-red-400 mt-1.5">Mật khẩu phải có ít nhất 6 ký tự</p>
+                                            <p className="mt-1.5 text-xs" style={{ color: "light-dark(#b91c1c, #fca5a5)" }}>Mật khẩu phải có ít nhất 6 ký tự</p>
                                         )}
                                     </div>
 
                                     {/* Confirm Password */}
                                     <div>
-                                        <label className="block text-xs font-semibold text-slate-400 mb-2">Xác nhận mật khẩu mới</label>
+                                        <label className="form-label mb-2 block text-xs font-semibold">Xác nhận mật khẩu mới</label>
                                         <input
                                             type="password"
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             placeholder="Nhập lại mật khẩu mới"
-                                            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition-colors"
+                                            className="form-input w-full rounded-lg px-4 py-3 text-sm"
                                         />
                                         {confirmPassword && newPassword !== confirmPassword && (
-                                            <p className="text-xs text-red-400 mt-1.5">Mật khẩu xác nhận không khớp</p>
+                                            <p className="mt-1.5 text-xs" style={{ color: "light-dark(#b91c1c, #fca5a5)" }}>Mật khẩu xác nhận không khớp</p>
                                         )}
                                     </div>
                                 </div>
@@ -512,11 +502,11 @@ export default function ProfilePage() {
                                     <button
                                         onClick={handleChangePassword}
                                         disabled={isSaving || !currentPassword || !newPassword || !confirmPassword}
-                                        className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-600/20 hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+                                        className="primary-action flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold"
                                     >
                                         {isSaving ? (
                                             <>
-                                                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                                                 Đang xử lý…
                                             </>
                                         ) : (
@@ -528,13 +518,13 @@ export default function ProfilePage() {
                         </div>
 
                         {/* RIGHT — Security tips */}
-                        <div className="lg:col-span-1 space-y-6">
-                            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6">
+                        <div className="space-y-6 lg:col-span-1">
+                            <div className="rounded-xl border border-amber-500/35 bg-amber-500/10 p-6">
                                 <div className="flex items-start gap-3">
-                                    <span className="text-xl">⚡</span>
+                                    <span className="text-xl" aria-hidden="true">⚡</span>
                                     <div>
-                                        <h3 className="text-sm font-bold text-amber-400 mb-2">Lưu ý bảo mật</h3>
-                                        <ul className="text-xs text-slate-400 space-y-2 leading-relaxed">
+                                        <h3 className="mb-2 text-sm font-bold" style={{ color: "light-dark(#92400e, #fcd34d)" }}>Lưu ý bảo mật</h3>
+                                        <ul className="space-y-2 text-xs leading-relaxed text-[var(--text-secondary)]">
                                             <li>• Sử dụng mật khẩu mạnh kết hợp chữ hoa, chữ thường, số và ký tự đặc biệt</li>
                                             <li>• Không sử dụng lại mật khẩu từ các dịch vụ khác</li>
                                             <li>• Đổi mật khẩu định kỳ để tăng bảo mật</li>
@@ -543,15 +533,15 @@ export default function ProfilePage() {
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6">
+                            <div className="surface-card rounded-xl p-6">
                                 <div className="flex items-start gap-3">
-                                    <span className="text-xl">🛡️</span>
+                                    <span className="text-xl" aria-hidden="true">🛡️</span>
                                     <div>
-                                        <h3 className="text-sm font-bold text-blue-400 mb-2">Mẹo tạo mật khẩu</h3>
-                                        <ul className="text-xs text-slate-400 space-y-2 leading-relaxed">
+                                        <h3 className="mb-2 text-sm font-bold text-[var(--text-primary)]">Mẹo tạo mật khẩu</h3>
+                                        <ul className="space-y-2 text-xs leading-relaxed text-[var(--text-secondary)]">
                                             <li>• Dùng ít nhất 8 ký tự</li>
-                                            <li>• Kết hợp: <span className="text-slate-300 font-mono">Aa1@</span></li>
-                                            <li>• Ví dụ: <span className="text-slate-300 font-mono">Cloud@Exam2025</span></li>
+                                            <li>• Kết hợp: <span className="font-mono text-[var(--text-primary)]">Aa1@</span></li>
+                                            <li>• Ví dụ: <span className="font-mono text-[var(--text-primary)]">Cloud@Exam2025</span></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -561,18 +551,19 @@ export default function ProfilePage() {
                 )}
 
                 {/* ── Danger Zone ── */}
-                <div className="mt-12 rounded-2xl border border-red-500/15 bg-red-500/5 p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="mt-12 rounded-xl border border-red-500/30 bg-red-500/10 p-6">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h3 className="text-sm font-bold text-red-400 mb-1">Đăng xuất</h3>
-                            <p className="text-xs text-slate-400">Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng dịch vụ</p>
+                            <h3 className="mb-1 text-sm font-bold" style={{ color: "light-dark(#b91c1c, #fca5a5)" }}>Đăng xuất</h3>
+                            <p className="text-xs text-[var(--text-secondary)]">Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng dịch vụ</p>
                         </div>
                         <button
                             onClick={() => {
                                 // TODO: clear auth token & redirect
                                 router.push("/login");
                             }}
-                            className="rounded-xl border border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-500/20 transition-colors flex-shrink-0"
+                            className="flex-shrink-0 rounded-lg border border-red-500/35 bg-[var(--surface)] px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-red-500/10"
+                            style={{ color: "light-dark(#b91c1c, #fca5a5)" }}
                         >
                             Đăng xuất
                         </button>
@@ -582,11 +573,11 @@ export default function ProfilePage() {
 
             {/* ═══ TOAST ═══ */}
             {toast && (
-                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] animate-in fade-in slide-in-from-bottom-4 duration-300">
-                    <div className={`rounded-xl px-5 py-3 text-sm font-medium shadow-2xl backdrop-blur-xl ${toast.type === "success"
-                        ? "bg-green-500/15 border border-green-500/30 text-green-400"
-                        : "bg-red-500/15 border border-red-500/30 text-red-400"
-                        }`}>
+                <div className="fixed bottom-6 left-1/2 z-[100] -translate-x-1/2">
+                    <div className={`rounded-lg border px-5 py-3 text-sm font-medium shadow-sm ${toast.type === "success"
+                        ? "border-green-500/30 bg-green-500/10"
+                        : "border-red-500/30 bg-red-500/10"
+                        }`} style={{ color: toast.type === "success" ? "light-dark(#15803d, #86efac)" : "light-dark(#b91c1c, #fca5a5)" }}>
                         {toast.type === "success" ? "✓ " : "⚠ "}{toast.text}
                     </div>
                 </div>

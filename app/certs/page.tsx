@@ -8,9 +8,9 @@ const certifications = [
     {
         provider: "AWS",
         logo: "🔶",
-        color: "from-orange-400 to-amber-500",
-        borderColor: "border-orange-500/30",
-        bgColor: "bg-orange-500/10",
+        color: "bg-blue-600",
+        borderColor: "border-slate-200",
+        bgColor: "bg-white",
         paths: [
             {
                 level: "Foundational",
@@ -53,9 +53,9 @@ const certifications = [
     {
         provider: "Azure",
         logo: "🔷",
-        color: "from-blue-400 to-cyan-500",
-        borderColor: "border-blue-500/30",
-        bgColor: "bg-blue-500/10",
+        color: "bg-blue-600",
+        borderColor: "border-slate-200",
+        bgColor: "bg-white",
         paths: [
             {
                 level: "Fundamentals",
@@ -98,9 +98,9 @@ const certifications = [
     {
         provider: "Google Cloud",
         logo: "🔴",
-        color: "from-red-400 to-yellow-500",
-        borderColor: "border-red-500/30",
-        bgColor: "bg-red-500/10",
+        color: "bg-blue-600",
+        borderColor: "border-slate-200",
+        bgColor: "bg-white",
         paths: [
             {
                 level: "Foundational",
@@ -144,12 +144,12 @@ const certifications = [
 
 // Level badge colors
 const levelColors: Record<string, string> = {
-    Practitioner: "bg-green-500/20 text-green-400 border-green-500/30",
-    Foundational: "bg-green-500/20 text-green-400 border-green-500/30",
-    Fundamentals: "bg-green-500/20 text-green-400 border-green-500/30",
-    Associate: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    Professional: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    Expert: "bg-pink-500/20 text-pink-400 border-pink-500/30",
+    Practitioner: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300",
+    Foundational: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300",
+    Fundamentals: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300",
+    Associate: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300",
+    Professional: "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-900/60 dark:bg-violet-950/40 dark:text-violet-300",
+    Expert: "border-pink-200 bg-pink-50 text-pink-700 dark:border-pink-900/60 dark:bg-pink-950/40 dark:text-pink-300",
 };
 
 const CertsPage = () => {
@@ -163,92 +163,90 @@ const CertsPage = () => {
     };
 
     return (
-        <div className="bg-slate-900 flex flex-col min-h-screen relative overflow-hidden">
-            {/* Background */}
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-20 -left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
+        <div className="app-shell flex min-h-screen flex-col">
             {/* Header */}
-            <header className="sticky top-0 z-50 px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
-                <div className="flex items-center gap-3">
+            <header className="site-header sticky top-0 z-50 px-4 py-3">
+                <div className="mx-auto flex max-w-4xl items-center gap-3">
                     <button
-                        className="w-9 h-9 rounded-xl bg-slate-800/50 border border-white/10 flex items-center justify-center cursor-pointer hover:bg-slate-800 transition-colors"
+                        className="icon-button flex h-9 w-9 items-center justify-center rounded-lg"
                         onClick={() => router.back()}
                     >
-                        <span className="text-white">←</span>
+                        <span>←</span>
                     </button>
                     <div>
-                        <h1 className="text-white text-lg font-bold">Lộ trình chứng chỉ</h1>
-                        <p className="text-slate-400 text-xs">Chọn chứng chỉ để bắt đầu luyện tập</p>
+                        <h1 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>Lộ trình chứng chỉ</h1>
+                        <p className="text-xs" style={{ color: "var(--text-muted)" }}>Chọn chứng chỉ để bắt đầu luyện tập</p>
                     </div>
                 </div>
             </header>
 
             {/* Content */}
-            <main className="flex-1 px-4 py-4 overflow-y-auto pb-20">
+            <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 pb-12">
                 <div className="space-y-4">
                     {certifications.map((provider) => (
                         <div
                             key={provider.provider}
-                            className={`${provider.bgColor} border ${provider.borderColor} rounded-2xl overflow-hidden`}
+                            className="surface-card overflow-hidden rounded-xl"
                         >
                             {/* Provider Header */}
                             <button
                                 onClick={() => setExpandedProvider(
                                     expandedProvider === provider.provider ? null : provider.provider
                                 )}
-                                className={`w-full bg-gradient-to-r ${provider.color} p-4 flex items-center justify-between`}
+                                className="flex w-full items-center justify-between border-b px-4 py-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                                style={{ borderColor: "var(--border-clr)" }}
                             >
                                 <div className="flex items-center gap-3">
                                     <span className="text-3xl">{provider.logo}</span>
-                                    <div className="text-left">
-                                        <h2 className="text-white font-bold text-lg">{provider.provider}</h2>
-                                        <p className="text-white/80 text-xs">
+                                    <div>
+                                        <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>{provider.provider}</h2>
+                                        <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                                             {provider.paths.length} chứng chỉ
                                         </p>
                                     </div>
                                 </div>
-                                <span className={`text-white text-xl transition-transform ${expandedProvider === provider.provider ? "rotate-180" : ""}`}>
+                                <span className={`text-lg transition-transform ${expandedProvider === provider.provider ? "rotate-180" : ""}`} style={{ color: "var(--text-muted)" }}>
                                     ▼
                                 </span>
                             </button>
 
                             {/* Certification Paths */}
                             {expandedProvider === provider.provider && (
-                                <div className="p-3 space-y-2">
+                                <div className="space-y-2 p-3">
                                     {provider.paths.map((cert, idx) => (
                                         <div
                                             key={cert.code}
                                             onClick={() => handleCertClick(provider.provider, cert.code, cert.status)}
-                                            className={`bg-slate-800/50 border border-white/5 rounded-xl p-4 ${cert.status === "locked" ? "opacity-50" : "cursor-pointer hover:bg-slate-800/70"} transition-all relative`}
+                                            className={`relative rounded-lg border p-4 ${cert.status === "locked" ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"} transition-colors`}
+                                            style={{ borderColor: "var(--border-clr)", background: "var(--surface)" }}
                                         >
                                             {/* Connection line (except first) */}
                                             {idx > 0 && (
-                                                <div className="absolute -top-4 left-8 w-0.5 h-4 bg-slate-600"></div>
+                                                <div className="absolute -top-3 left-8 h-3 w-px bg-slate-300 dark:bg-slate-600"></div>
                                             )}
 
                                             <div className="flex items-start gap-3">
                                                 {/* Step number */}
-                                                <div className={`w-8 h-8 rounded-full ${cert.status === "completed" ? "bg-green-500" : cert.status === "locked" ? "bg-slate-600" : `bg-gradient-to-r ${provider.color}`} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                                                <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${cert.status === "completed" ? "bg-emerald-600" : cert.status === "locked" ? "bg-slate-300 dark:bg-slate-700" : "bg-blue-600"}`}>
                                                     {cert.status === "completed" ? (
-                                                        <span className="text-white text-sm">✓</span>
+                                                        <span className="text-sm text-white">✓</span>
                                                     ) : cert.status === "locked" ? (
-                                                        <span className="text-slate-400 text-sm">🔒</span>
+                                                        <span className="text-sm text-slate-600 dark:text-slate-300">🔒</span>
                                                     ) : (
-                                                        <span className="text-white text-sm font-bold">{idx + 1}</span>
+                                                        <span className="text-sm font-bold text-white">{idx + 1}</span>
                                                     )}
                                                 </div>
 
                                                 {/* Cert Info */}
                                                 <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className={`text-xs px-2 py-0.5 rounded-full border ${levelColors[cert.level] || "bg-slate-500/20 text-slate-400 border-slate-500/30"}`}>
+                                                    <div className="mb-1 flex items-center gap-2">
+                                                        <span className={`rounded-full border px-2 py-0.5 text-xs ${levelColors[cert.level] || "border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"}`}>
                                                             {cert.level}
                                                         </span>
-                                                        <span className="text-slate-400 text-xs">{cert.code}</span>
+                                                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>{cert.code}</span>
                                                     </div>
-                                                    <h3 className="text-white font-bold text-sm">{cert.name}</h3>
-                                                    <div className="flex items-center gap-3 mt-2 text-slate-500 text-xs">
+                                                    <h3 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{cert.name}</h3>
+                                                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs" style={{ color: "var(--text-muted)" }}>
                                                         <span>🕐 {cert.duration}</span>
                                                         <span>📋 {cert.questions} câu</span>
                                                         <span>✓ {cert.passingScore}</span>
@@ -256,11 +254,11 @@ const CertsPage = () => {
                                                 </div>
 
                                                 {/* Arrow/Lock */}
-                                                <div className="flex items-center">
+                                                <div className="flex items-center" style={{ color: "var(--text-muted)" }}>
                                                     {cert.status === "locked" ? (
-                                                        <span className="text-slate-500">🔒</span>
+                                                        <span>🔒</span>
                                                     ) : (
-                                                        <span className="text-slate-400">›</span>
+                                                        <span>›</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -273,12 +271,12 @@ const CertsPage = () => {
                 </div>
 
                 {/* Info Card */}
-                <div className="mt-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl p-4">
+                <div className="mt-6 rounded-xl border p-4" style={{ background: "var(--primary-soft)", borderColor: "var(--primary-soft-border)" }}>
                     <div className="flex items-start gap-3">
                         <span className="text-2xl">💡</span>
                         <div>
-                            <h3 className="text-white font-bold text-sm mb-1">Mẹo luyện thi</h3>
-                            <p className="text-slate-300 text-xs leading-relaxed">
+                            <h3 className="mb-1 text-sm font-bold" style={{ color: "var(--text-primary)" }}>Mẹo luyện thi</h3>
+                            <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                                 Bắt đầu từ chứng chỉ Foundational để xây dựng nền tảng vững chắc.
                                 Sau đó tiến lên Associate và Professional theo lộ trình được đề xuất.
                             </p>

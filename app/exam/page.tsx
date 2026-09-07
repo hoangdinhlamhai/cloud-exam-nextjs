@@ -352,18 +352,18 @@ function ExamContent() {
     /* ── guards ── */
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+            <div className="min-h-screen bg-[var(--background)] flex flex-col items-center justify-center">
                 <Spinner visible />
-                <p className="text-slate-500 text-sm mt-4">Đang tải đề thi…</p>
+                <p className="text-[var(--text-muted)] text-sm mt-4">Đang tải đề thi…</p>
             </div>
         );
     }
     if (error) {
         return (
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6 gap-4">
+            <div className="min-h-screen bg-[var(--background)] flex flex-col items-center justify-center px-6 gap-4">
                 <span className="text-4xl">⚠️</span>
-                <p className="text-red-400 text-sm font-medium">{error}</p>
-                <button onClick={() => router.back()} className="rounded-xl bg-slate-800 px-5 py-2.5 text-sm text-white hover:bg-slate-700 transition-colors">
+                <p className="text-red-600 text-sm font-medium dark:text-red-400">{error}</p>
+                <button onClick={() => router.back()} className="secondary-action rounded-lg px-5 py-2.5 text-sm">
                     Quay lại
                 </button>
             </div>
@@ -371,10 +371,10 @@ function ExamContent() {
     }
     if (!exam || questions.length === 0) {
         return (
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6 gap-4">
+            <div className="min-h-screen bg-[var(--background)] flex flex-col items-center justify-center px-6 gap-4">
                 <span className="text-5xl">📝</span>
-                <p className="text-slate-400 text-base font-medium">{!exam ? `Không tìm thấy đề thi (ID: ${examId})` : `Chưa có câu hỏi trong đề thi "${exam.title}"`}</p>
-                <button onClick={() => router.back()} className="rounded-xl bg-slate-800 px-5 py-2.5 text-sm text-white hover:bg-slate-700 transition-colors">
+                <p className="text-[var(--text-secondary)] text-base font-medium">{!exam ? `Không tìm thấy đề thi (ID: ${examId})` : `Chưa có câu hỏi trong đề thi "${exam.title}"`}</p>
+                <button onClick={() => router.back()} className="secondary-action rounded-lg px-5 py-2.5 text-sm">
                     Quay lại
                 </button>
             </div>
@@ -383,38 +383,32 @@ function ExamContent() {
 
     /* ──────── RENDER ──────── */
     return (
-        <div className="min-h-screen bg-slate-950 text-white selection:bg-cyan-500/30 flex flex-col relative">
-            {/* ── Background decorations ── */}
-            <div className="pointer-events-none absolute inset-0">
-                <div className="absolute -top-24 right-0 h-[500px] w-[500px] rounded-full bg-cyan-600/10 blur-3xl" />
-                <div className="absolute bottom-40 -left-20 h-48 w-48 rounded-full bg-purple-500/10 blur-3xl" />
-            </div>
-
+        <div className="app-shell relative flex min-h-screen flex-col selection:bg-blue-100 dark:selection:bg-blue-900 dark:selection:text-blue-100">
             {/* ══════════════ HEADER ══════════════ */}
-            <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/20">
+            <header className="site-header sticky top-0 z-50 shadow-sm">
                 <div className="mx-auto flex max-w-5xl items-center gap-3 px-5 py-3 lg:px-8">
                     {/* Close */}
                     <button
                         onClick={() => router.back()}
-                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] transition-colors flex-shrink-0"
+                        className="icon-button flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg"
                     >
                         ✕
                     </button>
 
                     {/* Title */}
                     <div className="flex-1 min-w-0">
-                        <h1 className="text-base font-bold text-white truncate">{exam.title}</h1>
-                        <p className="text-xs text-slate-500">
+                        <h1 className="truncate text-base font-bold text-[var(--text-primary)]">{exam.title}</h1>
+                        <p className="text-xs text-[var(--text-muted)]">
                             Câu {currentIndex + 1}/{questions.length}
-                            {!isSubmitted && <span className="ml-2 text-cyan-400">· {answeredCount} đã trả lời</span>}
+                            {!isSubmitted && <span className="ml-2 text-blue-600 dark:text-blue-400">· {answeredCount} đã trả lời</span>}
                         </p>
                     </div>
 
                     {/* Timer badge (test mode) */}
                     {isTestMode && !isSubmitted && (
-                        <div className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-bold transition-all ${isTimeLow
-                            ? "bg-red-500/15 text-red-400 border border-red-500/30 animate-pulse"
-                            : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                        <div className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-bold ${isTimeLow
+                            ? "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/60 dark:text-red-300"
+                            : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
                             }`}>
                             <span>{isTimeLow ? "🔥" : "⏱️"}</span>
                             <span className="font-mono tabular-nums">{formatTime(timeRemaining)}</span>
@@ -423,9 +417,9 @@ function ExamContent() {
 
                     {/* Mode badge */}
                     {!isSubmitted && (
-                        <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold border ${isTestMode
-                            ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                            : "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
+                        <div className={`hidden items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold sm:flex ${isTestMode
+                            ? "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+                            : "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
                             }`}>
                             <span>{isTestMode ? "🏆" : "📖"}</span>
                             <span>{isTestMode ? "Thi thử" : "Luyện tập"}</span>
@@ -434,7 +428,7 @@ function ExamContent() {
 
                     {/* Score badge (after submit) */}
                     {isSubmitted && score && (
-                        <div className={`px-3.5 py-1.5 rounded-full text-sm font-bold ${score.percent >= 70 ? "bg-green-500/15 text-green-400 border border-green-500/30" : "bg-red-500/15 text-red-400 border border-red-500/30"}`}>
+                        <div className={`rounded-full border px-3.5 py-1.5 text-sm font-bold ${score.percent >= 70 ? "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/60 dark:text-green-300" : "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/60 dark:text-red-300"}`}>
                             {score.correct}/{score.total} ({score.percent}%)
                         </div>
                     )}
@@ -442,17 +436,17 @@ function ExamContent() {
                     {/* Grid button */}
                     <button
                         onClick={() => setIsDrawerOpen(true)}
-                        className="flex h-9 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-xs font-medium text-slate-300 hover:bg-white/[0.08] transition-colors flex-shrink-0"
+                        className="secondary-action flex h-9 flex-shrink-0 items-center gap-1.5 rounded-lg px-3 text-xs font-medium"
                     >
-                        <span className="text-cyan-400">▦</span>
+                        <span className="text-blue-600 dark:text-blue-400">▦</span>
                         <span className="hidden sm:inline">Danh sách</span>
                     </button>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="h-1 bg-slate-900">
+                <div className="h-1 bg-slate-200 dark:bg-slate-800">
                     <div
-                        className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-300"
+                        className="h-full bg-blue-600 transition-all duration-300"
                         style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
                     />
                 </div>
@@ -464,14 +458,14 @@ function ExamContent() {
                     {currentQuestion && (
                         <div className="space-y-5">
                             {/* Question number + text */}
-                            <div className="rounded-2xl border border-white/[0.06] bg-slate-900/60 p-6">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/20 text-xs font-bold text-cyan-400">
+                            <div className="surface-card rounded-xl p-6">
+                                <div className="mb-3 flex items-center gap-2">
+                                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-xs font-bold text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
                                         {currentIndex + 1}
                                     </span>
-                                    <span className="text-xs font-medium text-slate-500">/ {questions.length}</span>
+                                    <span className="text-xs font-medium text-[var(--text-muted)]">/ {questions.length}</span>
                                 </div>
-                                <p className="text-base leading-relaxed text-white whitespace-pre-wrap">
+                                <p className="whitespace-pre-wrap text-base leading-relaxed text-[var(--text-primary)]">
                                     {currentQuestion.content}
                                 </p>
                             </div>
@@ -485,26 +479,26 @@ function ExamContent() {
                                     const isCorrectAnswer = hasResult && result.correctAnswerId === answer.id;
                                     const isWrongSelection = hasResult && isSelected && !result.isCorrect;
 
-                                    let cardStyle = "border-white/[0.06] bg-slate-900/40 hover:border-white/[0.12] hover:bg-slate-900/60";
-                                    let letterStyle = "bg-slate-800 text-slate-400";
+                                    let cardStyle = "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600 dark:hover:bg-slate-800";
+                                    let letterStyle = "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300";
 
                                     if (hasResult) {
                                         if (isCorrectAnswer) {
-                                            cardStyle = "border-green-500/40 bg-green-500/10";
-                                            letterStyle = "bg-green-500/20 text-green-400";
+                                            cardStyle = "border-green-300 bg-green-50 dark:border-green-800 dark:bg-green-950/60";
+                                            letterStyle = "bg-green-100 text-green-700 dark:bg-green-900/70 dark:text-green-300";
                                         } else if (isWrongSelection) {
-                                            cardStyle = "border-red-500/40 bg-red-500/10";
-                                            letterStyle = "bg-red-500/20 text-red-400";
+                                            cardStyle = "border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/60";
+                                            letterStyle = "bg-red-100 text-red-700 dark:bg-red-900/70 dark:text-red-300";
                                         }
                                     } else if (isSelected) {
-                                        cardStyle = "border-cyan-500/40 bg-cyan-500/10";
-                                        letterStyle = "bg-cyan-500 text-white";
+                                        cardStyle = "border-blue-500 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/70";
+                                        letterStyle = "bg-blue-600 text-white dark:bg-blue-500 dark:text-white";
                                     }
 
                                     return (
                                         <button
                                             key={answer.id}
-                                            className={`w-full text-left border rounded-xl p-4 transition-all duration-200 ${cardStyle} ${!(isSubmitted || hasResult) ? "cursor-pointer active:scale-[0.99]" : "cursor-default"}`}
+                                            className={`w-full rounded-xl border p-4 text-left transition-colors ${cardStyle} ${!(isSubmitted || hasResult) ? "cursor-pointer" : "cursor-default"}`}
                                             onClick={() => handleSelectAnswer(currentQuestion.id, answer.id)}
                                             disabled={isSubmitted || hasResult}
                                         >
@@ -512,14 +506,14 @@ function ExamContent() {
                                                 <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold flex-shrink-0 ${letterStyle}`}>
                                                     {String.fromCharCode(65 + idx)}
                                                 </div>
-                                                <span className={`flex-1 text-sm leading-relaxed pt-1 ${isSelected || isCorrectAnswer ? "text-white" : "text-slate-300"}`}>
+                                                <span className={`flex-1 pt-1 text-sm leading-relaxed ${isSelected || isCorrectAnswer ? "text-slate-900 dark:text-slate-100" : "text-slate-700 dark:text-slate-300"}`}>
                                                     {answer.content}
                                                 </span>
                                                 {isCorrectAnswer && (
-                                                    <span className="text-green-400 text-lg flex-shrink-0">✓</span>
+                                                    <span className="text-green-400 text-lg flex-shrink-0 dark:text-green-300">✓</span>
                                                 )}
                                                 {isWrongSelection && (
-                                                    <span className="text-red-400 text-lg flex-shrink-0">✕</span>
+                                                    <span className="text-red-400 text-lg flex-shrink-0 dark:text-red-300">✕</span>
                                                 )}
                                             </div>
                                         </button>
@@ -529,12 +523,12 @@ function ExamContent() {
 
                             {/* Explanation (after submit) */}
                             {answerResults[currentQuestion.id]?.explanation && (
-                                <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-5">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/20 text-sm">💡</span>
-                                        <span className="text-sm font-bold text-blue-400">Giải thích</span>
+                                <div className="rounded-xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-950/60">
+                                    <div className="mb-3 flex items-center gap-2">
+                                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-sm dark:bg-blue-900/70">💡</span>
+                                        <span className="text-sm font-bold text-blue-700 dark:text-blue-300">Giải thích</span>
                                     </div>
-                                    <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                                         {answerResults[currentQuestion.id].explanation}
                                     </p>
                                 </div>
@@ -543,33 +537,33 @@ function ExamContent() {
                             {/* ── Note Section ── */}
                             <div>
                                 <button
-                                    className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all ${openNoteId === currentQuestion.id
-                                        ? "bg-amber-500/10 border-amber-500/30"
+                                    className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 transition-colors ${openNoteId === currentQuestion.id
+                                        ? "border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/60"
                                         : questionNotes[currentQuestion.id]
-                                            ? "bg-amber-500/5 border-amber-500/20"
-                                            : "bg-slate-900/40 border-white/[0.06] hover:border-white/[0.12]"
+                                            ? "border-amber-200 bg-amber-50/60 dark:border-amber-800 dark:bg-amber-950/40"
+                                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600 dark:hover:bg-slate-800"
                                         }`}
                                     onClick={() => setOpenNoteId(openNoteId === currentQuestion.id ? null : currentQuestion.id)}
                                 >
-                                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${questionNotes[currentQuestion.id] ? "bg-amber-500/20" : "bg-slate-800"}`}>
-                                        <span className={`text-sm ${questionNotes[currentQuestion.id] ? "text-amber-400" : "text-slate-500"}`}>📝</span>
+                                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${questionNotes[currentQuestion.id] ? "bg-amber-100 dark:bg-amber-900/70" : "bg-slate-100 dark:bg-slate-800"}`}>
+                                        <span className={`text-sm ${questionNotes[currentQuestion.id] ? "text-amber-700 dark:text-amber-300" : "text-slate-500 dark:text-slate-400"}`}>📝</span>
                                     </div>
-                                    <span className={`flex-1 text-left text-sm font-medium ${questionNotes[currentQuestion.id] ? "text-amber-400" : "text-slate-400"}`}>
+                                    <span className={`flex-1 text-left text-sm font-medium ${questionNotes[currentQuestion.id] ? "text-amber-800 dark:text-amber-300" : "text-slate-600 dark:text-slate-300"}`}>
                                         {questionNotes[currentQuestion.id] ? "Xem ghi chú" : "Thêm ghi chú"}
                                     </span>
                                     {questionNotes[currentQuestion.id] && (
-                                        <span className="h-2 w-2 rounded-full bg-amber-400 flex-shrink-0" />
+                                        <span className="h-2 w-2 rounded-full bg-amber-500 flex-shrink-0" />
                                     )}
-                                    <span className="text-slate-500 text-xs flex-shrink-0">
+                                    <span className="text-slate-500 text-xs flex-shrink-0 dark:text-slate-400">
                                         {openNoteId === currentQuestion.id ? "▲" : "▼"}
                                     </span>
                                 </button>
 
                                 {/* Note editor (collapsible) */}
                                 {openNoteId === currentQuestion.id && (
-                                    <div className="mt-2 rounded-2xl border border-white/[0.06] bg-slate-900/60 p-5 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div className="mt-2 space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200 dark:border-slate-700 dark:bg-slate-900">
                                         <textarea
-                                            className="w-full rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm text-white placeholder:text-slate-600 resize-none focus:outline-none focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/20 transition-colors"
+                                            className="w-full resize-none rounded-lg border border-slate-300 bg-white p-4 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-950"
                                             rows={4}
                                             placeholder="Ghi chú của bạn cho câu hỏi này…"
                                             value={questionNotes[currentQuestion.id] || ""}
@@ -581,20 +575,20 @@ function ExamContent() {
                                             }
                                         />
                                         <div className="flex items-center justify-between">
-                                            <span className="text-xs text-slate-600">
+                                            <span className="text-xs text-slate-500 dark:text-slate-400">
                                                 {(questionNotes[currentQuestion.id] || "").length} ký tự
                                             </span>
                                             <div className="flex gap-2">
                                                 {questionNotes[currentQuestion.id] && (
                                                     <button
-                                                        className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs text-slate-400 hover:bg-slate-700 transition-colors"
+                                                        className="secondary-action rounded-lg px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300"
                                                         onClick={() => handleDeleteNote(currentQuestion.id)}
                                                     >
                                                         Xóa
                                                     </button>
                                                 )}
                                                 <button
-                                                    className="rounded-lg bg-amber-500/15 border border-amber-500/25 px-3 py-1.5 text-xs font-semibold text-amber-400 hover:bg-amber-500/25 transition-colors disabled:opacity-40"
+                                                    className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 transition-colors hover:bg-amber-100 disabled:opacity-40 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-300 dark:hover:bg-amber-900/70"
                                                     onClick={() => handleSaveNote(currentQuestion.id)}
                                                     disabled={isSavingNote || !(questionNotes[currentQuestion.id]?.trim())}
                                                 >
@@ -611,12 +605,12 @@ function ExamContent() {
             </main>
 
             {/* ══════════════ NAVIGATION FOOTER ══════════════ */}
-            <footer className="fixed bottom-0 inset-x-0 z-40 border-t border-white/[0.06] bg-slate-950/90 backdrop-blur-xl">
+            <footer className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950">
                 <div className="mx-auto max-w-3xl px-5 py-4 lg:px-8">
                     <div className="flex gap-3">
                         {/* Previous */}
                         <button
-                            className="flex-1 flex items-center justify-center gap-1 rounded-xl bg-slate-900 border border-white/[0.06] h-12 text-sm font-medium text-slate-300 disabled:opacity-40 hover:bg-slate-800 transition-colors"
+                            className="secondary-action flex h-12 flex-1 items-center justify-center gap-1 rounded-lg text-sm font-medium disabled:opacity-40"
                             disabled={currentIndex === 0}
                             onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
                         >
@@ -627,14 +621,14 @@ function ExamContent() {
                         {currentIndex === questions.length - 1 ? (
                             isSubmitted ? (
                                 <button
-                                    className="flex-1 flex items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 h-12 text-sm font-bold text-white shadow-lg shadow-green-600/20 hover:opacity-90 transition-opacity"
+                                    className="flex h-12 flex-1 items-center justify-center rounded-lg border border-green-600 bg-green-600 text-sm font-bold text-white transition-colors hover:bg-green-700 dark:border-green-500 dark:bg-green-600 dark:hover:bg-green-500"
                                     onClick={() => router.back()}
                                 >
                                     ✓ Hoàn thành
                                 </button>
                             ) : (
                                 <button
-                                    className="flex-1 flex items-center justify-center rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 h-12 text-sm font-bold text-white shadow-lg shadow-cyan-600/20 hover:opacity-90 transition-opacity disabled:opacity-50"
+                                    className="primary-action flex h-12 flex-1 items-center justify-center rounded-lg text-sm font-bold disabled:opacity-50"
                                     onClick={handleSubmit}
                                     disabled={isSubmitting}
                                 >
@@ -647,7 +641,7 @@ function ExamContent() {
                             )
                         ) : (
                             <button
-                                className="flex-1 flex items-center justify-center gap-1 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 h-12 text-sm font-medium text-white shadow-lg shadow-cyan-600/20 hover:opacity-90 transition-opacity"
+                                className="primary-action flex h-12 flex-1 items-center justify-center gap-1 rounded-lg text-sm font-medium"
                                 onClick={() => setCurrentIndex((prev) => Math.min(questions.length - 1, prev + 1))}
                             >
                                 Tiếp <span>›</span>
@@ -658,14 +652,14 @@ function ExamContent() {
                     {/* Mini question navigator bar */}
                     <div className="flex items-center justify-center mt-3">
                         <button
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/[0.06] bg-white/[0.03] text-xs text-slate-400 hover:bg-white/[0.06] transition-colors"
+                            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                             onClick={() => setIsDrawerOpen(true)}
                         >
-                            <span className="text-cyan-400">▦</span>
+                            <span className="text-blue-600 dark:text-blue-400">▦</span>
                             <span>Câu {currentIndex + 1}/{questions.length}</span>
-                            <span className="text-slate-600">·</span>
-                            <span className="text-cyan-400">{answeredCount} đã làm</span>
-                            <span className="text-slate-600">▲</span>
+                            <span className="text-slate-400 dark:text-slate-500">·</span>
+                            <span className="text-blue-600 dark:text-blue-400">{answeredCount} đã làm</span>
+                            <span className="text-slate-400 dark:text-slate-500">▲</span>
                         </button>
                     </div>
                 </div>
@@ -675,30 +669,30 @@ function ExamContent() {
             {/* Overlay */}
             {isDrawerOpen && (
                 <div
-                    className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity"
+                    className="fixed inset-0 z-50 bg-slate-950/50 transition-opacity"
                     onClick={() => setIsDrawerOpen(false)}
                 />
             )}
 
             {/* Drawer Panel */}
             <div
-                className={`fixed bottom-0 inset-x-0 z-50 bg-slate-950 rounded-t-3xl border-t border-white/[0.08] transition-transform duration-300 ease-out ${isDrawerOpen ? "translate-y-0" : "translate-y-full"
+                className={`fixed inset-x-0 bottom-0 z-50 rounded-t-xl border-t border-slate-200 bg-white shadow-sm transition-transform duration-300 ease-out dark:border-slate-700 dark:bg-slate-950 ${isDrawerOpen ? "translate-y-0" : "translate-y-full"
                     }`}
                 style={{ maxHeight: "75vh" }}
             >
                 {/* Handle */}
                 <div className="flex justify-center pt-3 pb-1">
-                    <div className="h-1 w-10 rounded-full bg-slate-700" />
+                    <div className="h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-700" />
                 </div>
 
                 {/* Drawer header */}
-                <div className="flex items-center justify-between px-5 pb-4 border-b border-white/[0.06]">
+                <div className="flex items-center justify-between border-b border-slate-200 px-5 pb-4 dark:border-slate-700">
                     <div>
-                        <h3 className="text-base font-bold text-white">Danh sách câu hỏi</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">{answeredCount}/{questions.length} câu đã trả lời</p>
+                        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Danh sách câu hỏi</h3>
+                        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{answeredCount}/{questions.length} câu đã trả lời</p>
                     </div>
                     <button
-                        className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700 transition-colors"
+                        className="icon-button flex h-8 w-8 items-center justify-center rounded-full"
                         onClick={() => setIsDrawerOpen(false)}
                     >
                         ✕
@@ -714,22 +708,22 @@ function ExamContent() {
                             const result = answerResults[q.id];
                             const hasNote = !!questionNotes[q.id];
 
-                            let cellBg = "bg-slate-800/60 border-slate-700/50 text-slate-500";
+                            let cellBg = "border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400";
 
                             if (result) {
                                 cellBg = result.isCorrect
-                                    ? "bg-green-500/15 border-green-500/40 text-green-400"
-                                    : "bg-red-500/15 border-red-500/40 text-red-400";
+                                    ? "border-green-300 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/60 dark:text-green-300"
+                                    : "border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/60 dark:text-red-300";
                             } else if (isCurrent) {
-                                cellBg = "bg-cyan-500/15 border-cyan-400/50 text-cyan-400 ring-2 ring-cyan-400/30";
+                                cellBg = "border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100 dark:border-blue-500 dark:bg-blue-950/70 dark:text-blue-300 dark:ring-blue-950";
                             } else if (isAnswered) {
-                                cellBg = "bg-emerald-500/15 border-emerald-500/40 text-emerald-400";
+                                cellBg = "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-300";
                             }
 
                             return (
                                 <button
                                     key={q.id}
-                                    className={`relative h-9 w-full rounded-lg border flex items-center justify-center font-semibold text-xs transition-all active:scale-95 ${cellBg}`}
+                                    className={`relative flex h-9 w-full items-center justify-center rounded-lg border text-xs font-semibold transition-colors ${cellBg}`}
                                     onClick={() => {
                                         setCurrentIndex(idx);
                                         setIsDrawerOpen(false);
@@ -737,7 +731,7 @@ function ExamContent() {
                                 >
                                     {idx + 1}
                                     {hasNote && (
-                                        <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-amber-400" />
+                                        <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-amber-500" />
                                     )}
                                 </button>
                             );
@@ -745,36 +739,36 @@ function ExamContent() {
                     </div>
 
                     {/* Legend */}
-                    <div className="flex flex-wrap items-center justify-center gap-4 mt-5 pt-4 border-t border-white/[0.06]">
+                    <div className="mt-5 flex flex-wrap items-center justify-center gap-4 border-t border-slate-200 pt-4 dark:border-slate-700">
                         <div className="flex items-center gap-1.5">
-                            <div className="h-3 w-3 rounded-full bg-slate-700" />
-                            <span className="text-xs text-slate-500">Chưa làm</span>
+                            <div className="h-3 w-3 rounded-full bg-slate-300 dark:bg-slate-700" />
+                            <span className="text-xs text-slate-500 dark:text-slate-400">Chưa làm</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <div className="h-3 w-3 rounded-full bg-cyan-400" />
-                            <span className="text-xs text-slate-500">Đang xem</span>
+                            <div className="h-3 w-3 rounded-full bg-blue-600 dark:bg-blue-500" />
+                            <span className="text-xs text-slate-500 dark:text-slate-400">Đang xem</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <div className="h-3 w-3 rounded-full bg-emerald-400" />
-                            <span className="text-xs text-slate-500">Đã làm</span>
+                            <div className="h-3 w-3 rounded-full bg-blue-300 dark:bg-blue-800" />
+                            <span className="text-xs text-slate-500 dark:text-slate-400">Đã làm</span>
                         </div>
                         {(isSubmitted || Object.keys(answerResults).length > 0) && (
                             <>
                                 <div className="flex items-center gap-1.5">
-                                    <div className="h-3 w-3 rounded-full bg-green-500" />
-                                    <span className="text-xs text-slate-500">Đúng</span>
+                                    <div className="h-3 w-3 rounded-full bg-green-500 dark:bg-green-400" />
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">Đúng</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                    <div className="h-3 w-3 rounded-full bg-red-500" />
-                                    <span className="text-xs text-slate-500">Sai</span>
+                                    <div className="h-3 w-3 rounded-full bg-red-500 dark:bg-red-400" />
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">Sai</span>
                                 </div>
                             </>
                         )}
                         <div className="flex items-center gap-1.5">
-                            <div className="relative h-3 w-3 rounded-full bg-slate-700">
+                            <div className="relative h-3 w-3 rounded-full bg-slate-300 dark:bg-slate-700">
                                 <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-amber-400" />
                             </div>
-                            <span className="text-xs text-slate-500">Có ghi chú</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400">Có ghi chú</span>
                         </div>
                     </div>
                 </div>
@@ -787,9 +781,9 @@ function ExamContent() {
 const ExamPage = () => {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+            <div className="min-h-screen bg-[var(--background)] flex flex-col items-center justify-center">
                 <Spinner visible />
-                <p className="text-slate-500 text-sm mt-4">Đang tải…</p>
+                <p className="text-[var(--text-muted)] text-sm mt-4">Đang tải…</p>
             </div>
         }>
             <ExamContent />

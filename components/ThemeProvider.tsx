@@ -10,7 +10,7 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-    theme: "dark",
+    theme: "light",
     toggleTheme: () => { },
 });
 
@@ -19,22 +19,22 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const [theme, setTheme] = useState<Theme>("dark");
+    const [theme, setTheme] = useState<Theme>("light");
 
-    // Load saved theme + apply class on mount
+    const applyTheme = (nextTheme: Theme) => {
+        const root = document.documentElement;
+        root.setAttribute("data-theme", nextTheme);
+        root.classList.remove("dark", "light");
+        root.classList.add(nextTheme);
+    };
+
+    // Load saved theme and apply it after hydration. The server-rendered default is light.
     useEffect(() => {
         const saved = localStorage.getItem("theme") as Theme | null;
-        const initial = saved || "dark";
+        const initial = saved || "light";
         setTheme(initial);
         applyTheme(initial);
     }, []);
-
-    const applyTheme = (t: Theme) => {
-        const root = document.documentElement;
-        root.setAttribute("data-theme", t);
-        root.classList.remove("dark", "light");
-        root.classList.add(t);
-    };
 
     const toggleTheme = () => {
         const next = theme === "dark" ? "light" : "dark";

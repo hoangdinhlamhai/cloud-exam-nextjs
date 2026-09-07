@@ -3,6 +3,7 @@ import { Be_Vietnam_Pro, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SnackbarProvider } from "@/components/Snackbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const beVietnam = Be_Vietnam_Pro({
   variable: "--font-main",
@@ -28,17 +29,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className="dark" suppressHydrationWarning>
+    <html lang="vi" data-theme="light" suppressHydrationWarning>
       <body
         className={`${beVietnam.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
-          <SnackbarProvider>
-            {children}
-          </SnackbarProvider>
-        </ThemeProvider>
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+          <ThemeProvider>
+            <SnackbarProvider>
+              {children}
+            </SnackbarProvider>
+          </ThemeProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );
 }
-

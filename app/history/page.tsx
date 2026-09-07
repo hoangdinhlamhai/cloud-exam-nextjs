@@ -8,10 +8,10 @@ import { examResultService, ExamResult, UserStats } from "@/services/exam-result
 import { getAuthToken } from "@/lib/api";
 
 const levelColors: Record<string, string> = {
-    Practitioner: "bg-green-500/15 text-green-400 border-green-500/25",
-    Associate: "bg-blue-500/15 text-blue-400 border-blue-500/25",
-    Professional: "bg-amber-500/15 text-amber-400 border-amber-500/25",
-    Expert: "bg-pink-500/15 text-pink-400 border-pink-500/25",
+    Practitioner: "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/50 dark:text-green-300",
+    Associate: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-300",
+    Professional: "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
+    Expert: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-300",
 };
 
 const HistoryPage = () => {
@@ -66,15 +66,15 @@ const HistoryPage = () => {
     };
 
     const getScoreColor = (score: number) => {
-        if (score >= 80) return "text-green-400";
-        if (score >= 70) return "text-yellow-400";
-        return "text-red-400";
+        if (score >= 80) return "text-green-700 dark:text-green-300";
+        if (score >= 70) return "text-amber-700 dark:text-amber-300";
+        return "text-red-700 dark:text-red-300";
     };
 
     const getScoreBg = (score: number) => {
-        if (score >= 80) return "from-green-500/20 to-emerald-500/20 border-green-500/30";
-        if (score >= 70) return "from-yellow-500/20 to-amber-500/20 border-yellow-500/30";
-        return "from-red-500/20 to-orange-500/20 border-red-500/30";
+        if (score >= 80) return "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50";
+        if (score >= 70) return "border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50";
+        return "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/50";
     };
 
     const accuracyPct = stats && stats.totalQuestions > 0
@@ -82,69 +82,61 @@ const HistoryPage = () => {
         : 0;
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white selection:bg-cyan-500/30">
+        <div className="app-shell min-h-screen selection:bg-blue-100">
             {/* ════════════ HEADER ════════════ */}
-            <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/[0.06]">
-                <div className="mx-auto max-w-7xl flex items-center justify-between px-5 py-3 lg:px-8">
-                    <div className="flex items-center gap-3">
-                        <button onClick={() => router.push("/home")} className="flex items-center gap-2 group">
-                            <span className="text-lg font-extrabold tracking-tight">
-                                Cloud<span className="text-cyan-400">Exam</span>
+            <header className="site-header sticky top-0 z-50 shadow-sm">
+                <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 lg:px-8">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <button onClick={() => router.push("/home")} className="flex items-center gap-2">
+                            <span className="wordmark text-lg font-extrabold tracking-tight">
+                                Cloud<span className="wordmark-accent">Exam</span>
                             </span>
                         </button>
-                        <span className="text-slate-600">/</span>
-                        <h1 className="text-sm font-semibold text-slate-300">Lịch sử luyện tập</h1>
+                        <span className="text-slate-300 dark:text-slate-600">/</span>
+                        <h1 className="truncate text-sm font-semibold text-slate-700 dark:text-slate-300">Lịch sử luyện tập</h1>
                     </div>
                     <button
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-slate-400 rounded-xl border border-white/10 hover:bg-white/[0.06] hover:text-white transition-all"
+                        className="secondary-action flex items-center gap-2 rounded-lg px-4 py-2 text-sm"
                     >
                         ← Quay lại
                     </button>
                 </div>
             </header>
 
-            {/* ════════════ HERO / STATS ════════════ */}
-            <section className="relative overflow-hidden border-b border-white/[0.06]">
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -top-16 left-1/2 -translate-x-1/2 h-[400px] w-[700px] rounded-full bg-gradient-to-b from-cyan-600/15 via-blue-600/10 to-transparent blur-3xl" />
-                    <div className="absolute top-20 right-0 h-48 w-48 rounded-full bg-blue-500/10 blur-3xl" />
-                </div>
-
-                <div className="relative z-10 mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-14">
-                    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+            {/* ════════════ OVERVIEW / STATS ════════════ */}
+            <section className="border-b border-[var(--border-clr)] bg-white dark:bg-slate-950">
+                <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                         {/* Title area */}
                         <div>
-                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-500/25 bg-cyan-500/10 px-4 py-1.5">
-                                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                                <span className="text-xs font-medium text-cyan-300">Theo dõi tiến độ</span>
-                            </div>
-                            <h2 className="text-3xl font-extrabold leading-tight sm:text-4xl">
-                                Lịch sử <span className="text-cyan-400">luyện tập</span>
+                            <p className="app-eyebrow mb-2 text-xs font-semibold uppercase tracking-[0.16em]">Theo dõi tiến độ</p>
+                            <h2 className="text-2xl font-extrabold leading-tight text-slate-900 dark:text-slate-100 sm:text-3xl">
+                                Lịch sử luyện tập
                             </h2>
-                            <p className="mt-3 max-w-lg text-slate-400 leading-relaxed">
+                            <p className="mt-2 max-w-lg text-sm leading-relaxed text-slate-600 dark:text-slate-300">
                                 Xem lại kết quả các bài thi, theo dõi tiến bộ và phân tích điểm mạnh, điểm yếu.
                             </p>
                         </div>
 
                         {/* Stats cards */}
                         {stats && (
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <div className="bg-gradient-to-br from-cyan-500/15 to-blue-500/15 border border-cyan-500/25 rounded-2xl px-5 py-4 text-center">
-                                    <p className="text-2xl font-black text-cyan-400">{stats.totalExamsTaken}</p>
-                                    <p className="text-xs text-slate-500 mt-1">Tổng đề thi</p>
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                <div className="surface-card min-w-[112px] rounded-lg px-4 py-3">
+                                    <p className="text-xl font-black text-blue-700 dark:text-blue-300">{stats.totalExamsTaken}</p>
+                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Tổng đề thi</p>
                                 </div>
-                                <div className={`bg-gradient-to-br ${getScoreBg(stats.averageScore)} rounded-2xl px-5 py-4 text-center`}>
-                                    <p className={`text-2xl font-black ${getScoreColor(stats.averageScore)}`}>{stats.averageScore}%</p>
-                                    <p className="text-xs text-slate-500 mt-1">Điểm TB</p>
+                                <div className={`min-w-[112px] rounded-lg border px-4 py-3 shadow-sm ${getScoreBg(stats.averageScore)}`}>
+                                    <p className={`text-xl font-black ${getScoreColor(stats.averageScore)}`}>{stats.averageScore}%</p>
+                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Điểm TB</p>
                                 </div>
-                                <div className="bg-gradient-to-br from-green-500/15 to-emerald-500/15 border border-green-500/25 rounded-2xl px-5 py-4 text-center">
-                                    <p className="text-2xl font-black text-green-400">{stats.passedExams}</p>
-                                    <p className="text-xs text-slate-500 mt-1">Đã đạt</p>
+                                <div className="min-w-[112px] rounded-lg border border-green-200 bg-green-50 px-4 py-3 shadow-sm dark:border-green-800 dark:bg-green-950/50">
+                                    <p className="text-xl font-black text-green-700 dark:text-green-300">{stats.passedExams}</p>
+                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Đã đạt</p>
                                 </div>
-                                <div className="bg-gradient-to-br from-red-500/15 to-orange-500/15 border border-red-500/25 rounded-2xl px-5 py-4 text-center">
-                                    <p className="text-2xl font-black text-red-400">{stats.failedExams}</p>
-                                    <p className="text-xs text-slate-500 mt-1">Chưa đạt</p>
+                                <div className="min-w-[112px] rounded-lg border border-red-200 bg-red-50 px-4 py-3 shadow-sm dark:border-red-800 dark:bg-red-950/50">
+                                    <p className="text-xl font-black text-red-700 dark:text-red-300">{stats.failedExams}</p>
+                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Chưa đạt</p>
                                 </div>
                             </div>
                         )}
@@ -152,19 +144,19 @@ const HistoryPage = () => {
 
                     {/* Accuracy progress bar */}
                     {stats && stats.totalQuestions > 0 && (
-                        <div className="mt-6 bg-slate-900/60 border border-white/[0.06] rounded-2xl p-5">
-                            <div className="flex items-center justify-between mb-3">
+                        <div className="surface-card mt-5 rounded-lg p-4">
+                            <div className="mb-3 flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-cyan-400 text-sm">📊</span>
-                                    <span className="text-sm font-semibold text-white">Tỷ lệ trả lời đúng</span>
+                                    <span className="text-sm text-blue-600">📊</span>
+                                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Tỷ lệ trả lời đúng</span>
                                 </div>
-                                <span className="text-sm font-bold text-cyan-400">
+                                <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
                                     {stats.totalCorrectAnswers}/{stats.totalQuestions} ({accuracyPct}%)
                                 </span>
                             </div>
-                            <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
                                 <div
-                                    className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full transition-all duration-700 ease-out"
+                                    className="h-full rounded-full bg-blue-600 transition-all duration-700 ease-out"
                                     style={{ width: `${accuracyPct}%` }}
                                 />
                             </div>
@@ -178,33 +170,33 @@ const HistoryPage = () => {
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center h-64 gap-4">
                         <Spinner visible size="lg" />
-                        <p className="text-slate-500 text-sm">Đang tải lịch sử...</p>
+                        <p className="text-[var(--text-muted)] text-sm">Đang tải lịch sử...</p>
                     </div>
                 ) : error ? (
                     <div className="flex flex-col items-center justify-center h-64 gap-4">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10 border border-red-500/20 text-3xl">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-3xl dark:border-red-800 dark:bg-red-950/50">
                             ⚠️
                         </div>
-                        <p className="text-red-400 text-sm font-medium">{error}</p>
+                        <p className="text-red-700 text-sm font-medium dark:text-red-300">{error}</p>
                         <button
                             onClick={fetchData}
-                            className="px-5 py-2.5 bg-slate-800 text-white rounded-xl text-sm hover:bg-slate-700 transition-colors"
+                            className="secondary-action rounded-lg px-5 py-2.5 text-sm"
                         >
                             Thử lại
                         </button>
                     </div>
                 ) : history.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 gap-4">
-                        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-900/80 border border-white/[0.06] text-4xl">
+                        <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-slate-200 bg-white text-4xl shadow-sm dark:border-slate-700 dark:bg-slate-900">
                             📝
                         </div>
                         <div className="text-center">
-                            <p className="text-lg font-semibold text-white mb-1">Chưa có lịch sử</p>
-                            <p className="text-sm text-slate-500">Hoàn thành bài thi đầu tiên để xem kết quả tại đây</p>
+                            <p className="mb-1 text-lg font-semibold text-slate-900 dark:text-slate-100">Chưa có lịch sử</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Hoàn thành bài thi đầu tiên để xem kết quả tại đây</p>
                         </div>
                         <button
                             onClick={() => router.push("/exams")}
-                            className="mt-2 flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-3 text-sm font-bold text-white hover:opacity-90 transition-opacity shadow-lg shadow-cyan-600/20"
+                            className="primary-action mt-2 flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold"
                         >
                             ▶ Làm đề ngay
                         </button>
@@ -212,13 +204,13 @@ const HistoryPage = () => {
                 ) : (
                     <>
                         {/* Section heading */}
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="mb-5 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-sm">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm text-white">
                                     📋
                                 </div>
-                                <h3 className="text-base font-bold text-white">Kết quả làm bài</h3>
-                                <span className="text-xs font-medium text-slate-500 bg-slate-800/80 px-2.5 py-1 rounded-full">
+                                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Kết quả làm bài</h3>
+                                <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                                     Trang {page}/{totalPages}
                                 </span>
                             </div>
@@ -229,40 +221,37 @@ const HistoryPage = () => {
                             {history.map((result) => (
                                 <div
                                     key={result.id}
-                                    className="group relative rounded-2xl border border-white/[0.06] bg-slate-900/50 p-5 transition-all duration-300 hover:border-white/[0.12] hover:bg-slate-900/80 hover:-translate-y-0.5 cursor-pointer"
+                                    className="group relative cursor-pointer rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600 dark:hover:bg-slate-800"
                                     onClick={() => router.push(`/history/detail?id=${result.id}&examId=${result.exam.id}`)}
                                 >
-                                    {/* Hover glow */}
-                                    <div className={`absolute -right-8 -top-8 h-32 w-32 rounded-full blur-3xl transition-opacity opacity-0 group-hover:opacity-15 ${result.passed ? "bg-green-500" : "bg-red-500"}`} />
-
-                                    <div className="relative flex items-center gap-5">
+                                    <div className="flex items-center gap-5">
                                         {/* Score badge */}
-                                        <div className={`flex-shrink-0 w-[72px] h-[72px] rounded-2xl flex flex-col items-center justify-center ${result.passed
-                                            ? "bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30"
-                                            : "bg-gradient-to-br from-red-500/20 to-orange-500/20 border border-red-500/30"
+                                        <div className={`flex h-[72px] w-[72px] flex-shrink-0 flex-col items-center justify-center rounded-xl border ${result.passed
+                                            ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50"
+                                            : "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/50"
                                             }`}>
-                                            <span className={`text-xl font-black ${result.passed ? "text-green-400" : "text-red-400"}`}>
+                                            <span className={`text-xl font-black ${result.passed ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
                                                 {result.score}%
                                             </span>
-                                            <span className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${result.passed ? "text-green-500/70" : "text-red-500/70"}`}>
+                                            <span className={`mt-0.5 text-[10px] font-bold uppercase tracking-wider ${result.passed ? "text-green-600 dark:text-green-300" : "text-red-600 dark:text-red-300"}`}>
                                                 {result.passed ? "PASS" : "FAIL"}
                                             </span>
                                         </div>
 
                                         {/* Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="text-white font-bold text-sm sm:text-base line-clamp-1 mb-1.5">
+                                        <div className="min-w-0 flex-1">
+                                            <h4 className="mb-1.5 line-clamp-1 text-sm font-bold text-slate-900 dark:text-slate-100 sm:text-base">
                                                 {result.exam.title}
                                             </h4>
-                                            <div className="flex items-center gap-2 flex-wrap mb-2">
-                                                <span className="text-xs text-slate-400">{result.exam.course.title}</span>
-                                                <span className={`text-[10px] px-2 py-0.5 rounded-full border ${levelColors[result.exam.course.level] || "bg-slate-500/15 text-slate-400 border-slate-500/25"}`}>
+                                            <div className="mb-2 flex flex-wrap items-center gap-2">
+                                                <span className="text-xs text-slate-600 dark:text-slate-300">{result.exam.course.title}</span>
+                                                <span className={`rounded-full border px-2 py-0.5 text-[10px] ${levelColors[result.exam.course.level] || "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"}`}>
                                                     {result.exam.course.level}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-4 text-xs text-slate-500">
+                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
                                                 <span className="flex items-center gap-1">
-                                                    <span className={result.passed ? "text-green-500" : "text-red-500"}>✓</span>
+                                                    <span className={result.passed ? "text-green-600" : "text-red-600"}>✓</span>
                                                     {result.correctCount}/{result.totalQuestions} câu đúng
                                                 </span>
                                                 <span className="flex items-center gap-1">
@@ -272,19 +261,19 @@ const HistoryPage = () => {
                                         </div>
 
                                         {/* Score progress ring (desktop) */}
-                                        <div className="hidden sm:flex flex-shrink-0 items-center gap-4">
+                                        <div className="hidden flex-shrink-0 items-center gap-4 sm:flex">
                                             {/* Mini progress */}
                                             <div className="w-[100px]">
-                                                <div className="flex justify-between text-[10px] mb-1">
+                                                <div className="mb-1 flex justify-between text-[10px]">
                                                     <span className={getScoreColor(result.score)}>{result.score}%</span>
                                                 </div>
-                                                <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                                <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
                                                     <div
                                                         className={`h-full rounded-full transition-all duration-500 ${result.score >= 80
-                                                            ? "bg-gradient-to-r from-green-400 to-emerald-500"
+                                                            ? "bg-green-600"
                                                             : result.score >= 70
-                                                                ? "bg-gradient-to-r from-yellow-400 to-amber-500"
-                                                                : "bg-gradient-to-r from-red-400 to-orange-500"
+                                                                ? "bg-amber-500"
+                                                                : "bg-red-600"
                                                             }`}
                                                         style={{ width: `${result.score}%` }}
                                                     />
@@ -292,7 +281,7 @@ const HistoryPage = () => {
                                             </div>
 
                                             {/* Arrow */}
-                                            <span className="text-slate-600 group-hover:text-slate-400 transition-colors text-lg">›</span>
+                                            <span className="text-lg text-slate-400 transition-colors group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-200">›</span>
                                         </div>
                                     </div>
                                 </div>
@@ -301,11 +290,11 @@ const HistoryPage = () => {
 
                         {/* Pagination */}
                         {totalPages > 1 && (
-                            <div className="flex items-center justify-center gap-2 mt-8">
+                            <div className="mt-8 flex items-center justify-center gap-2">
                                 <button
                                     onClick={() => setPage(p => Math.max(1, p - 1))}
                                     disabled={page === 1}
-                                    className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-900/60 border border-white/[0.06] text-white text-sm rounded-xl disabled:opacity-40 hover:bg-slate-800 transition-colors"
+                                    className="secondary-action flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                     ← Trước
                                 </button>
@@ -316,9 +305,9 @@ const HistoryPage = () => {
                                         <button
                                             key={p}
                                             onClick={() => setPage(p)}
-                                            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${p === page
-                                                ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-600/20"
-                                                : "text-slate-500 hover:bg-white/[0.06] hover:text-white"
+                                            className={`h-8 w-8 rounded-lg text-xs font-bold transition-colors ${p === page
+                                                ? "bg-blue-600 text-white"
+                                                : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                                                 }`}
                                         >
                                             {p}
@@ -329,7 +318,7 @@ const HistoryPage = () => {
                                 <button
                                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                     disabled={page === totalPages}
-                                    className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-900/60 border border-white/[0.06] text-white text-sm rounded-xl disabled:opacity-40 hover:bg-slate-800 transition-colors"
+                                    className="secondary-action flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                     Sau →
                                 </button>

@@ -86,4 +86,36 @@ export const authService = {
             throw error;
         }
     },
+
+    googleLogin: async (credential: string) => {
+        try {
+            console.log("Calling google login API...");
+            const response = await fetch(`${API_URL}/auth/google`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ credential }),
+            });
+
+            console.log("Google login response status:", response.status);
+
+            const data = await parseResponse(response);
+
+            if (!response.ok) {
+                console.error("Google login API error:", data);
+                const errorMsg = Array.isArray(data.message) ? data.message[0] : data.message;
+                throw new Error(errorMsg || "Google login failed");
+            }
+
+            console.log("Google login success:", data);
+            return data;
+        } catch (error: unknown) {
+            console.error("Google login error:", error);
+            if (error instanceof Error && error.message === "Failed to fetch") {
+                throw new Error("Network error. Please check your connection.");
+            }
+            throw error;
+        }
+    },
 };
